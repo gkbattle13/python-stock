@@ -1,5 +1,7 @@
 # python-stock
   通过tushare接口获取金融数据
+tushare 官网及注册地址: 
+    https://tushare.pro/register?reg=124747 
 
 
 1. 项目主要通过python调用tushare接口获取金融原始数据
