@@ -11,7 +11,6 @@ from tushare_data.utils.date import date_tool
 import sys
 
 
-
 # 获取行情数据
 class makret_data():
 
@@ -75,6 +74,7 @@ class makret_data():
         end_date	str	N	结束日期
 
        """
+
     def weekly(self, ts_code=None, trade_date=None, start_date=None, end_date=None):
         data = self.pro.weekly(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date)
         self.logger.info('TuShare weekly 周线行情 ts_code: ' + strUtils.noneToWdy(ts_code) + " trade_date： " +
@@ -84,11 +84,13 @@ class makret_data():
         data.insert(11, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
         data.to_sql("makret_data_weekly", self.engine, if_exists="append", index=False)
 
-
     """
         循环获取一段时间内的数据 循环调用weekly接口,使用trade_date参数，可能有些股票现在不存在
     """
+
     def weekly_cycle(self, exchange=None, start_date=None, end_date=None):
+        # TODO 需要替换为获取每周第一个日期和每月第一个日期
+
         sql = 'select * from basic_trade_cal where is_open = 1 '
         if not exchange is None:
             sql = sql + ' and exchange = "' + exchange + '"'
@@ -112,6 +114,7 @@ class makret_data():
         start_date	str	N	开始日期
         end_date	str	N	结束日期
     """
+
     def monthly(self, ts_code=None, trade_date=None, start_date=None, end_date=None):
         data = self.pro.monthly(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date)
         self.logger.info('TuShare monthly 月线 ts_code: ' + strUtils.noneToWdy(ts_code) + " trade_date： " +
@@ -121,11 +124,13 @@ class makret_data():
         data.insert(11, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
         data.to_sql("makret_data_monthly", self.engine, if_exists="append", index=False)
 
-
     """
         循环获取一段时间内的数据 循环调用monthly接口,使用trade_date参数，可能有些股票现在不存在
     """
+
     def monthly_cycle(self, exchange=None, start_date=None, end_date=None):
+        # TODO 需要替换为获取每周第一个日期和每月第一个日期
+
         sql = 'select * from basic_trade_cal where is_open = 1 '
         if not exchange is None:
             sql = sql + ' and exchange = "' + exchange + '"'
@@ -154,6 +159,67 @@ class makret_data():
             self.logger.error("TuShare 获取行情数据失败：code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
                               strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
                               ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
+
+    """
+        沪深港通资金流向
+        接口：moneyflow_hsgt
+        描述：获取沪股通、深股通、港股通每日资金流向数据，每次最多返回300条记录，总量不限制。
+        trade_date	str	N	交易日期 (二选一)
+        start_date	str	N	开始日期 (二选一)
+        end_date	str	N	结束日期
+    """
+
+    def moneyflow_hsgt(self, trade_date=None, start_date=None, end_date=None):
+        data = self.pro.moneyflow_hsgt(trade_date=trade_date, start_date=start_date, end_date=end_date)
+        self.logger.info('TuShare moneyflow_hsgt 沪深港通资金流向 trade_date: ' +
+                         strUtils.noneToWdy(trade_date) + " start_date： " +
+                         strUtils.noneToWdy(start_date) + " end_date： " +
+                         strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
+        data.insert(8, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
+        data.to_sql("makret_moneyflow_hsgt", self.engine, if_exists="append", index=False)
+
+    """
+        沪深股通十大成交股
+        接口：hsgt_top10
+        描述：获取沪股通、深股通每日前十大成交详细数据
+        ts_code	str	N	股票代码（二选一）
+        trade_date	str	N	交易日期（二选一）
+        start_date	str	N	开始日期
+        end_date	str	N	结束日期
+        market_type	str	N	市场类型（1：沪市 3：深市）
+    """
+
+    def hsgt_top10(self, ts_code=None, trade_date=None, start_date=None, end_date=None, market_type=None):
+        data = self.pro.hsgt_top10(ts_code=None, trade_date=trade_date, start_date=start_date, end_date=end_date, market_type=None)
+        self.logger.info('TuShare hsgt_top10 沪深股通十大成交股 ts_code: ' + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
+                         strUtils.noneToWdy(trade_date) + " start_date： " +
+                         strUtils.noneToWdy(start_date) + " end_date： " +
+                         strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
+        data.insert(8, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
+        data.to_sql("makret_hsgt_top10", self.engine, if_exists="append", index=False)
+
+
+    """
+        沪深港股通持股明细
+        接口：hk_hold
+        描述：获取沪深港股通持股明细，数据来源港交所
+        code	str	N	交易所代码
+        ts_code	str	N	TS股票代码
+        trade_date	str	N	交易日期
+        start_date	str	N	开始日期
+        end_date	str	N	结束日期
+        exchange	str	N	类型：SH沪股通（北向）SZ深股通（北向）HK港股通（南向持股）
+    """
+
+    def hk_hold(self, code=None, ts_code=None, trade_date=None, start_date=None, end_date=None, exchange=None):
+        data = self.pro.hk_hold(code=None, ts_code=None, trade_date=trade_date, start_date=start_date, end_date=end_date, exchange=None)
+        self.logger.info('TuShare hk_hold 沪深港股通持股明细 ts_code: ' + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
+                         strUtils.noneToWdy(trade_date) + " start_date： " +
+                         strUtils.noneToWdy(start_date) + " end_date： " +
+                         strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
+        data.insert(8, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
+        data.to_sql("makret_hsgt_top10", self.engine, if_exists="append", index=False)
+
 
     """
     更新时间：早上9点30分
