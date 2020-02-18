@@ -79,6 +79,56 @@ class basic():
         except Exception as e:
             self.logger.error("TuShare 获取各大交易所交易日历数据：" + str(e))
 
+
+    """
+        接口：hs_const  
+        描述：获取沪股通、深股通成分数据
+        hs_type	str	Y	类型SH沪股通SZ深股通
+        is_new	str	N	是否最新 1 是 0 否 (默认1)
+    """
+
+    def hs_const(self, hs_type, is_new=None):
+        try:
+            data = self.pro.hs_const(hs_type=hs_type, is_new=is_new)
+            self.logger.info('TuShare 沪深股通成份股 hs_type: ' + strUtils.noneToWdy(hs_type) + " is_new： " + strUtils.noneToWdy(is_new) + ' 数据共：' + str(len(data)) + "条数据")
+            data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
+            data.to_sql("basic_hs_const", self.engine, if_exists="append", index=False)
+        except Exception as e:
+            self.logger.error("TuShare 获取沪股通、深股通成分数据：" + str(e))
+
+
+    """
+        接口：stk_managers  
+        描述：上市公司管理层
+        ts_code	str	Y	股票代码，支持单个或多个股票输入
+    """
+
+    def stk_managers(self, ts_code):
+        try:
+            data = self.pro.stk_managers(ts_code=ts_code)
+            self.logger.info('TuShare 上市公司管理层 stk_managers: ' + strUtils.noneToWdy(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
+            data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
+            data.to_sql("basic_stk_managers", self.engine, if_exists="append", index=False)
+        except Exception as e:
+            self.logger.error("TuShare 上市公司管理层：" + str(e))
+
+    """
+        接口：stk_rewards  
+        描述：管理层薪酬和持股
+        ts_code	  str	Y	TS股票代码，支持单个或多个代码输入
+        end_date  str	N	报告期
+    """
+
+    def stk_rewards(self, ts_code):
+        try:
+            data = self.pro.stk_rewards(ts_code=ts_code, end_date=None)
+            self.logger.info('TuShare 管理层薪酬和持股 stk_managers: ' + strUtils.noneToWdy(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
+            data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
+            data.to_sql("basic_stk_rewards", self.engine, if_exists="append", index=False)
+        except Exception as e:
+            self.logger.error("TuShare 管理层薪酬和持股：" + str(e))
+
+
     """     
       接口：stock_company   会删除之前的信息，保留当天的
       描述：获取上市公司基础信息
@@ -100,23 +150,7 @@ class basic():
         except Exception as e:
             self.logger.error("TuShare 股票曾用名：" + str(e))
 
-    """
-    接口：hs_const  
-    描述：获取沪股通、深股通成分数据
-    限量：单次最大10000
-    hs_type	str	Y	类型SH沪股通SZ深股通
-    is_new	str	N	是否最新 1 是 0 否 (默认1)
-    """
 
-    def hs_const(self, hs_type, is_new=None):
-        try:
-            data = self.pro.hs_const(hs_type=hs_type, is_new=is_new)
-            self.logger.info('TuShare 沪深股通成份股 hs_type: ' + strUtils.noneToWdy(hs_type) + " is_new： " +
-                             strUtils.noneToWdy(is_new) + ' 数据共：' + str(len(data)) + "条数据")
-            data.insert(4, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
-            data.to_sql("basic_hs_const", self.engine, if_exists="append", index=False)
-        except Exception as e:
-            self.logger.error("TuShare 沪深股通成份股：" + str(e))
 
     """
       股票曾用名    先删除在获取 
