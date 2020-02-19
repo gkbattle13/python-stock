@@ -160,43 +160,25 @@ class makret_data():
                               strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
                               ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
 
-    """
-        沪深港通资金流向
-        接口：moneyflow_hsgt
-        描述：获取沪股通、深股通、港股通每日资金流向数据，每次最多返回300条记录，总量不限制。
-        trade_date	str	N	交易日期 (二选一)
-        start_date	str	N	开始日期 (二选一)
-        end_date	str	N	结束日期
-    """
-
-    def moneyflow_hsgt(self, trade_date=None, start_date=None, end_date=None):
-        data = self.pro.moneyflow_hsgt(trade_date=trade_date, start_date=start_date, end_date=end_date)
-        self.logger.info('TuShare moneyflow_hsgt 沪深港通资金流向 trade_date: ' +
-                         strUtils.noneToWdy(trade_date) + " start_date： " +
-                         strUtils.noneToWdy(start_date) + " end_date： " +
-                         strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
-        data.insert(8, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
-        data.to_sql("makret_moneyflow_hsgt", self.engine, if_exists="append", index=False)
 
     """
-        沪深股通十大成交股
-        接口：hsgt_top10
-        描述：获取沪股通、深股通每日前十大成交详细数据
-        ts_code	str	N	股票代码（二选一）
-        trade_date	str	N	交易日期（二选一）
+        个股资金流向
+        接口：moneyflow
+        描述：获取沪深A股票资金流向数据，分析大单小单成交情况，用于判别资金动向
+        ts_code	str	N	股票代码 （股票和时间参数至少输入一个）
+        trade_date	str	N	交易日期
         start_date	str	N	开始日期
         end_date	str	N	结束日期
-        market_type	str	N	市场类型（1：沪市 3：深市）
     """
 
-    def hsgt_top10(self, ts_code=None, trade_date=None, start_date=None, end_date=None, market_type=None):
-        data = self.pro.hsgt_top10(ts_code=None, trade_date=trade_date, start_date=start_date, end_date=end_date, market_type=None)
-        self.logger.info('TuShare hsgt_top10 沪深股通十大成交股 ts_code: ' + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
+    def money_flow(self, ts_code=None, trade_date=None, start_date=None, end_date=None):
+        data = self.pro.moneyflow(ts_code=None, trade_date=trade_date, start_date=start_date, end_date=end_date)
+        self.logger.info('TuShare moneyflow 个股资金流向 ts_code: ' + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
                          strUtils.noneToWdy(trade_date) + " start_date： " +
                          strUtils.noneToWdy(start_date) + " end_date： " +
                          strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
         data.insert(8, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
-        data.to_sql("makret_hsgt_top10", self.engine, if_exists="append", index=False)
+        data.to_sql("makret_money_flow", self.engine, if_exists="append", index=False)
 
 
     """

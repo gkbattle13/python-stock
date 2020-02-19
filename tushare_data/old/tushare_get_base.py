@@ -37,7 +37,7 @@ logger = loggerUtils.TNLog()
 # 创建Mysql数据库连接
 # engine = create_engine('mysql://wahaha:ceshi@106.14.238.126:3306/stock?charset=utf8')
 logger.info("sqlalchemy版本为：" + sqlalchemy.__version__)  # 查看版本
-engine = create_engine('mysql://wahaha:ceshi@106.14.238.126:3306/stock1?charset=utf8')
+engine = create_engine('mysql://@106.14.238.126:3306/stock1?charset=utf8')
 Session = sessionmaker(bind=engine)
 session = Session()
 
