@@ -5,7 +5,6 @@ from datetime import time
 import pandas as pd
 import time
 import tushare as ts
-from sqlalchemy.exc import ResourceClosedError
 from tushare_data.utils import strUtils
 
 
@@ -79,8 +78,8 @@ class basic():
         except Exception as e:
             self.logger.error("TuShare 获取各大交易所交易日历数据：" + str(e))
 
-
     """
+        获取频次：建议每天获取，对比变化
         接口：hs_const  
         描述：获取沪股通、深股通成分数据
         hs_type	str	Y	类型SH沪股通SZ深股通
@@ -89,15 +88,18 @@ class basic():
 
     def hs_const(self, hs_type, is_new=None):
         try:
+            # TODO 数据需要处理，对比出每天的变化
             data = self.pro.hs_const(hs_type=hs_type, is_new=is_new)
-            self.logger.info('TuShare 沪深股通成份股 hs_type: ' + strUtils.noneToWdy(hs_type) + " is_new： " + strUtils.noneToWdy(is_new) + ' 数据共：' + str(len(data)) + "条数据")
+            self.logger.info(
+                'TuShare 沪深股通成份股 hs_type: ' + strUtils.noneToWdy(hs_type) + " is_new： " + strUtils.noneToWdy(
+                    is_new) + ' 数据共：' + str(len(data)) + "条数据")
             data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
             data.to_sql("basic_hs_const", self.engine, if_exists="append", index=False)
         except Exception as e:
             self.logger.error("TuShare 获取沪股通、深股通成分数据：" + str(e))
 
-
     """
+        获取频次：建议每天获取，对比变化
         接口：stk_managers  
         描述：上市公司管理层
         ts_code	str	Y	股票代码，支持单个或多个股票输入
@@ -105,8 +107,10 @@ class basic():
 
     def stk_managers(self, ts_code):
         try:
+            # TODO 数据需要处理，对比出每天的变化
             data = self.pro.stk_managers(ts_code=ts_code)
-            self.logger.info('TuShare 上市公司管理层 stk_managers: ' + strUtils.noneToWdy(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
+            self.logger.info(
+                'TuShare 上市公司管理层 stk_managers: ' + strUtils.noneToWdy(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
             data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
             data.to_sql("basic_stk_managers", self.engine, if_exists="append", index=False)
         except Exception as e:
@@ -121,12 +125,19 @@ class basic():
 
     def stk_rewards(self, ts_code):
         try:
+            # TODO 数据需要处理，对比出每天的变化
             data = self.pro.stk_rewards(ts_code=ts_code, end_date=None)
-            self.logger.info('TuShare 管理层薪酬和持股 stk_managers: ' + strUtils.noneToWdy(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
+            self.logger.info(
+                'TuShare 管理层薪酬和持股 stk_managers: ' + strUtils.noneToWdy(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
             data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
             data.to_sql("basic_stk_rewards", self.engine, if_exists="append", index=False)
         except Exception as e:
             self.logger.error("TuShare 管理层薪酬和持股：" + str(e))
+
+
+
+
+
 
 
     """     
@@ -136,12 +147,13 @@ class basic():
 
     def stock_company(self):
         try:
+            # TODO 目前未发现可用的有效信息，暂时不获取该接口数据
             data = self.pro.stock_company()
             self.logger.info('TuShare 上市公司基础信息：' + ' 数据共：' + str(len(data)) + "条数据")
 
             # 清空basic_stock_company表，存放当天数据, 在没有数据返回的时候会报错，
             # try:
-                # pd.read_sql_query("TRUNCATE basic_stock_company", con=self.engine)
+            # pd.read_sql_query("TRUNCATE basic_stock_company", con=self.engine)
             # except ResourceClosedError as e:
             #     self.logger.info(e)
 
@@ -149,8 +161,6 @@ class basic():
             data.to_sql("basic_stock_company", self.engine, if_exists="append", index=False)
         except Exception as e:
             self.logger.error("TuShare 股票曾用名：" + str(e))
-
-
 
     """
       股票曾用名    先删除在获取 
@@ -164,13 +174,14 @@ class basic():
 
     def name_change(self, ts_code=None, start_date=None, end_date=None):
         try:
+            # TODO 目前未发现可用的有效信息，暂时不获取该接口数据
             data = self.pro.namechange(ts_code=ts_code, start_date=start_date, end_date=end_date,
                                        fields='ts_code,name,start_date,end_date,ann_date,change_reason')
             self.logger.info('TuShare 股票曾用名 start_date: ' + strUtils.noneToWdy(start_date) + " 到end_date： " +
                              strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
             # 清空basic_stock表，存放当天数据, 在没有数据返回的时候会报错，
             # try:
-                # pd.read_sql_query("TRUNCATE basic_name_change", con=self.engine)
+            # pd.read_sql_query("TRUNCATE basic_name_change", con=self.engine)
             # except ResourceClosedError as e:
             #     self.logger.info(e)
 
@@ -190,6 +201,7 @@ class basic():
 
     def new_share(self, start_date=None, end_date=None):
         try:
+            # TODO 目前未发现可用的有效信息，暂时不获取该接口数据
             data = self.pro.new_share(start_date=start_date, end_date=end_date)
             self.logger.info('TuShare IPO新股列表 start_date: ' + strUtils.noneToWdy(start_date) + " 到end_date： " +
                              strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")

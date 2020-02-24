@@ -5,9 +5,7 @@ from datetime import time
 import pandas as pd
 import time
 import tushare as ts
-from sqlalchemy.exc import ResourceClosedError
 from tushare_data.utils import strUtils
-from tushare_data.utils.date import date_tool
 import sys
 
 
@@ -22,6 +20,24 @@ class makret_data():
         logger.info("sqlalchemy版本为：" + sqlalchemy.__version__ + "。 ts 版本：" + ts.__version__)  # 查看版本\
         reload(sys)
         sys.setdefaultencoding('utf-8')
+
+    """
+    循环获取一段时间内的数据 循环调用daily接口,使用trade_date参数，可能有些股票现在不存在
+    """
+
+    def daily_cycle(self, exchange=None, start_date=None, end_date=None):
+        sql = 'select * from basic_trade_cal where is_open = 1 '
+        if not exchange is None:
+            sql = sql + ' and exchange = "' + exchange + '"'
+        if not start_date is None:
+            sql = sql + ' and cal_date > ' + start_date
+        if not end_date is None:
+            sql = sql + ' and cal_date < ' + end_date
+        data_1 = pd.read_sql(sql, self.engine)
+        for index, row in data_1.iterrows():
+            date_2 = row["cal_date"]
+            date_2.decode('utf8')
+            self.daily(trade_date=date_2)
 
     """
     日线行情
@@ -45,10 +61,11 @@ class makret_data():
         data.to_sql("makret_data_daily", self.engine, if_exists="append", index=False)
 
     """
-    循环获取一段时间内的数据 循环调用daily接口,使用trade_date参数，可能有些股票现在不存在
+        循环获取一段时间内的数据 循环调用weekly接口,使用trade_date参数，可能有些股票现在不存在
     """
 
-    def daily_cycle(self, exchange=None, start_date=None, end_date=None):
+    def weekly_cycle(self, exchange=None, start_date=None, end_date=None):
+        # TODO 需要替换为获取每周第一个日期和每月第一个日期
         sql = 'select * from basic_trade_cal where is_open = 1 '
         if not exchange is None:
             sql = sql + ' and exchange = "' + exchange + '"'
@@ -57,12 +74,11 @@ class makret_data():
         if not end_date is None:
             sql = sql + ' and cal_date < ' + end_date
         data_1 = pd.read_sql(sql, self.engine)
-        # print type(data_1)
-        # print data_1
         for index, row in data_1.iterrows():
             date_2 = row["cal_date"]
             date_2.decode('utf8')
-            self.daily(trade_date=date_2)
+            self.weekly(trade_date=date_2)
+            time.sleep(0.4)
 
     """
         周线行情
@@ -85,12 +101,11 @@ class makret_data():
         data.to_sql("makret_data_weekly", self.engine, if_exists="append", index=False)
 
     """
-        循环获取一段时间内的数据 循环调用weekly接口,使用trade_date参数，可能有些股票现在不存在
+        循环获取一段时间内的数据 循环调用monthly接口,使用trade_date参数，可能有些股票现在不存在
     """
 
-    def weekly_cycle(self, exchange=None, start_date=None, end_date=None):
+    def monthly_cycle(self, exchange=None, start_date=None, end_date=None):
         # TODO 需要替换为获取每周第一个日期和每月第一个日期
-
         sql = 'select * from basic_trade_cal where is_open = 1 '
         if not exchange is None:
             sql = sql + ' and exchange = "' + exchange + '"'
@@ -99,10 +114,11 @@ class makret_data():
         if not end_date is None:
             sql = sql + ' and cal_date < ' + end_date
         data_1 = pd.read_sql(sql, self.engine)
+        # data_1 = date_tool.getLastDayOfMonth(start_date,end_date)
         for index, row in data_1.iterrows():
             date_2 = row["cal_date"]
             date_2.decode('utf8')
-            self.weekly(trade_date=date_2)
+            self.monthly(trade_date=date_2)
             time.sleep(0.4)
 
     """
@@ -124,28 +140,6 @@ class makret_data():
         data.insert(11, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
         data.to_sql("makret_data_monthly", self.engine, if_exists="append", index=False)
 
-    """
-        循环获取一段时间内的数据 循环调用monthly接口,使用trade_date参数，可能有些股票现在不存在
-    """
-
-    def monthly_cycle(self, exchange=None, start_date=None, end_date=None):
-        # TODO 需要替换为获取每周第一个日期和每月第一个日期
-
-        sql = 'select * from basic_trade_cal where is_open = 1 '
-        if not exchange is None:
-            sql = sql + ' and exchange = "' + exchange + '"'
-        if not start_date is None:
-            sql = sql + ' and cal_date > ' + start_date
-        if not end_date is None:
-            sql = sql + ' and cal_date < ' + end_date
-        data_1 = pd.read_sql(sql, self.engine)
-        # data_1 = date_tool.getLastDayOfMonth(start_date,end_date)
-        for index, row in data_1.iterrows():
-            date_2 = row["cal_date"]
-            date_2.decode('utf8')
-            self.monthly(trade_date=date_2)
-            time.sleep(0.4)
-
     def quotes_daily(self, ts_code=None, trade_date=None, start_date=None, end_date=None):
         try:
             data = self.pro.daily(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date)
@@ -160,6 +154,110 @@ class makret_data():
                               strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
                               ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
 
+    """
+    接口：daily_basic
+    更新时间：交易日每日15点～17点之间
+    描述：获取全部股票每日重要的基本面指标，可用于选股分析、报表展示等。
+    ts_code	str	Y	股票代码（二选一）
+    trade_date	str	N	交易日期 （二选一）
+    start_date	str	N	开始日期(YYYYMMDD)
+    end_date	str	N	结束日期(YYYYMMDD)
+    """
+
+    # 根据参数获取每日指标
+    def daily_basic(self, ts_code=None, trade_date=None, start_date=None, end_date=None):
+        try:
+            data = self.pro.daily_basic(ts_code=ts_code, trade_date=trade_date, start_date=start_date,
+                                        end_date=end_date)
+            data.to_sql("makret_daily_basic", self.engine, if_exists="append", index=False)
+            self.logger.info("TuShare 获取每日指标成功：ts_code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
+                             strUtils.noneToWdy(trade_date) + ",  开始日期： " + strUtils.noneToWdy(start_date) +
+                             ", 结束日期：  " + strUtils.noneToWdy(end_date) + " ,  数据量： " + str(len(data)) + "成功")
+        except Exception as e:
+            self.logger.errorlog(fun_name='daily_basic', ts_code=ts_code, trade_date=trade_date, start_date=start_date,
+                                 end_date=end_date, e=str(e))
+            self.logger.error("TuShare 获取基本面指标失败：code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
+                              strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
+                              ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
+
+    """
+    接口：每日涨跌停统计 limit_list
+    描述：获取每日涨跌停股票统计，包括封闭时间和打开次数等数据，帮助用户快速定位近期强（弱）势股，以及研究超短线策略。
+    限量：单次最大1000，总量不限制
+    trade_date	str	N	交易日期 YYYYMMDD格式，支持单个或多日期输入
+    ts_code	str	N	股票代码 （支持单个或多个股票输入）
+    limit_type	str	N	涨跌停类型：U涨停D跌停
+    start_date	str	N	开始日期 YYYYMMDD格式
+    end_date	str	N	结束日期 YYYYMMDD格式
+    """
+
+    # 根据参数获取每日指标
+    def limit_list(self, ts_code=None, trade_date=None, start_date=None, end_date=None, limit_type=None):
+        # TODO 可以统计某一段时间内某一板块涨停状态
+        try:
+            data = self.pro.limit_list(ts_code=ts_code, limit_type=limit_type, trade_date=trade_date,
+                                       start_date=start_date,
+                                       end_date=end_date)
+            data.to_sql("makret_limit_list", self.engine, if_exists="append", index=False)
+            self.logger.info("TuShare 获取每日涨跌停统计成功：ts_code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
+                             strUtils.noneToWdy(trade_date) + ",  开始日期： " + strUtils.noneToWdy(start_date) +
+                             ", 结束日期：  " + strUtils.noneToWdy(end_date) + " ,  数据量： " + str(len(data)) + "成功")
+        except Exception as e:
+            self.logger.errorlog(fun_name='limit_list', ts_code=ts_code, trade_date=trade_date, start_date=start_date,
+                                 end_date=end_date, e=str(e))
+            self.logger.error("TuShare 获取基本面指标失败：code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
+                              strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
+                              ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
+
+    """
+    接口：沪深港通资金流向 moneyflow_hsgt
+    描述：获取沪股通、深股通、港股通每日资金流向数据，每次最多返回300条记录，总量不限制。
+    trade_date	str	N	交易日期 (二选一)
+    start_date	str	N	开始日期 (二选一)
+    end_date	str	N	结束日期
+    """
+
+    # 沪深港通资金流向
+    def moneyflow_hsgt(self, trade_date=None, start_date=None, end_date=None):
+        # TODO 统计资金走向，与短期，中期对比，看资金是否有赚到钱
+        try:
+            data = self.pro.moneyflow_hsgt(trade_date=trade_date, start_date=start_date, end_date=end_date)
+            data.to_sql("makret_limit_list", self.engine, if_exists="append", index=False)
+            self.logger.info("TuShare 获取沪深港通资金流向成功：交易日期：" +
+                             strUtils.noneToWdy(trade_date) + ",  开始日期： " + strUtils.noneToWdy(start_date) +
+                             ", 结束日期：  " + strUtils.noneToWdy(end_date) + " ,  数据量： " + str(len(data)) + "成功")
+        except Exception as e:
+            self.logger.errorlog(fun_name='moneyflow_hsgt', trade_date=trade_date, start_date=start_date,
+                                 end_date=end_date, e=str(e))
+            self.logger.error("TuShare 获取沪深港通资金流向失败：code：" + ", 交易日期：" +
+                              strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
+                              ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
+
+    """
+    接口：沪深股通十大成交股 hsgt_top10
+    描述：获取沪股通、深股通每日前十大成交详细数据
+    ts_code	str	N	股票代码（二选一）
+    trade_date	str	N	交易日期（二选一）
+    start_date	str	N	开始日期
+    end_date	str	N	结束日期
+    market_type	str	N	市场类型（1：沪市 3：深市）
+    """
+
+    # 沪深港通资金流向
+    def hsgt_top10(self, ts_code=None, trade_date=None, start_date=None, end_date=None, market_type=None):
+        # TODO 统计资金走向，与短期，中期对比，看资金是否有赚到钱
+        try:
+            data = self.pro.hsgt_top10(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date,market_type=market_type)
+            data.to_sql("makret_hsgt_top10", self.engine, if_exists="append", index=False)
+            self.logger.info("TuShare 获取沪深股通十大成交股成功：交易日期：" +
+                             strUtils.noneToWdy(trade_date) + ",  开始日期： " + strUtils.noneToWdy(start_date) +
+                             ", 结束日期：  " + strUtils.noneToWdy(end_date) + " ,  数据量： " + str(len(data)) + "成功")
+        except Exception as e:
+            self.logger.errorlog(fun_name='hsgt_top10', trade_date=trade_date, start_date=start_date,
+                                 end_date=end_date, e=str(e))
+            self.logger.error("TuShare 获取沪深股通十大成交股失败：code：" + ", 交易日期：" +
+                              strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
+                              ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
 
     """
         个股资金流向
@@ -180,7 +278,6 @@ class makret_data():
         data.insert(8, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
         data.to_sql("makret_money_flow", self.engine, if_exists="append", index=False)
 
-
     """
         沪深港股通持股明细
         接口：hk_hold
@@ -194,14 +291,14 @@ class makret_data():
     """
 
     def hk_hold(self, code=None, ts_code=None, trade_date=None, start_date=None, end_date=None, exchange=None):
-        data = self.pro.hk_hold(code=None, ts_code=None, trade_date=trade_date, start_date=start_date, end_date=end_date, exchange=None)
+        data = self.pro.hk_hold(code=None, ts_code=None, trade_date=trade_date, start_date=start_date,
+                                end_date=end_date, exchange=None)
         self.logger.info('TuShare hk_hold 沪深港股通持股明细 ts_code: ' + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
                          strUtils.noneToWdy(trade_date) + " start_date： " +
                          strUtils.noneToWdy(start_date) + " end_date： " +
                          strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
         data.insert(8, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
-        data.to_sql("makret_hsgt_top10", self.engine, if_exists="append", index=False)
-
+        data.to_sql("makret_hsgt_top", self.engine, if_exists="append", index=False)
 
     """
     更新时间：早上9点30分
@@ -247,32 +344,6 @@ class makret_data():
             self.logger.error(
                 "TuShare 获取停复牌信息失败，ts_code：" + strUtils.noneToWdy(ts_code) + "停盘日期：" +
                 strUtils.noneToWdy(suspend_date) + "复牌日期: " + strUtils.noneToWdy(resume_date) + ", 数据获取失败" + str(e))
-
-    """
-    接口：daily_basic
-    更新时间：交易日每日15点～17点之间
-    描述：获取全部股票每日重要的基本面指标，可用于选股分析、报表展示等。
-    ts_code	str	Y	股票代码（二选一）
-    trade_date	str	N	交易日期 （二选一）
-    start_date	str	N	开始日期(YYYYMMDD)
-    end_date	str	N	结束日期(YYYYMMDD)
-    """
-
-    # 根据参数获取每日指标
-    def get_daily_basic(self, ts_code=None, trade_date=None, start_date=None, end_date=None):
-        try:
-            data = self.pro.daily_basic(ts_code=ts_code, trade_date=trade_date, start_date=start_date,
-                                        end_date=end_date)
-            data.to_sql("quotes_daily_basic", self.engine, if_exists="append", index=False)
-            self.logger.info("TuShare 获取基本面指标成功：ts_code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
-                             strUtils.noneToWdy(trade_date) + ",  开始日期： " + strUtils.noneToWdy(start_date) +
-                             ", 结束日期：  " + strUtils.noneToWdy(end_date) + " ,  数据量： " + str(len(data)) + "成功")
-        except Exception as e:
-            self.logger.errorlog(fun_name='daily_basic', ts_code=ts_code, trade_date=trade_date, start_date=start_date,
-                                 end_date=end_date, e=str(e))
-            self.logger.error("TuShare 获取基本面指标失败：code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
-                              strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
-                              ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
 
     """
 
