@@ -66,7 +66,6 @@ class basic():
     end_date	str	N	结束日期  
     is_open	    int	N	是否交易 0休市 1交易
     """
-
     def trade_Cal(self, exchange=None, start_date=None, end_date=None):
         try:
             data = self.pro.trade_cal(exchange=exchange, start_date=start_date, end_date=end_date,

@@ -3,6 +3,7 @@
 
 import calendar
 import datetime
+from datetime import datetime
 import random
 import time
 import pandas as pd
@@ -73,6 +74,8 @@ def getRomandId():
 end_date：可以为空，默认为当天
 format：需要的日期格式，默认为：%Y-%m-%d
 """
+
+
 def getBetweenDayList(begin_date, end_date=None, format=None):
     date_list = []
 
@@ -89,19 +92,29 @@ def getBetweenDayList(begin_date, end_date=None, format=None):
         begin_date += datetime.timedelta(days=1)
     return date_list
 
+
 def getLastDayOfMonth(beginDate, endDate):
     date_index = pd.date_range(beginDate, endDate)
     days = [pd.Timestamp(x).strftime("%Y-%m-%d") for x in date_index.values]
 
     tmp = []
-    for index , v in enumerate(days):
-        if index == len(days)-1:
+    for index, v in enumerate(days):
+        if index == len(days) - 1:
             tmp.append(days[index])
         # if index == 0:
-            # tmp.append(days[0])
+        # tmp.append(days[0])
         else:
             _ = v.split('-')[2]
             if _ == '01':
-                tmp.append(days[index-1])
+                tmp.append(days[index - 1])
                 tmp.append(days[index])
     return tmp
+
+
+# 返回yyyyMMdd日期格式是周几
+def changeToWeek(date_2):
+    try:
+        week = datetime.strptime(date_2, "%Y%m%d").weekday()
+        return week
+    except Exception as e:
+        print "获取周几失败" + e.message
