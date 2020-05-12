@@ -20,8 +20,8 @@ class makret_data():
         self.pro = pro
         self.logger = logger
         logger.info("sqlalchemy版本为：" + sqlalchemy.__version__ + "。 ts 版本：" + ts.__version__)  # 查看版本\
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
+        # reload(sys)
+        # sys.setdefaultencoding('utf-8')
 
 
     """

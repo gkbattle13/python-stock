@@ -117,4 +117,4 @@ def changeToWeek(date_2):
         week = datetime.strptime(date_2, "%Y%m%d").weekday()
         return week
     except Exception as e:
-        print "获取周几失败" + e.message
+        print("获取周几失败" + e.message)
