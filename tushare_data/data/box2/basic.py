@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import sqlalchemy
 from datetime import time
-import pandas as pd
 import time
 import tushare as ts
 from tushare_data.utils import strUtils
@@ -40,7 +39,7 @@ class basic():
                 columns={'totalAssets': 'total_assets', 'fullname': 'full_name', 'liquidAssets': 'liquid_assets',
                          'fixedAssets': 'fixed_assets',
                          'reservedPerShare': 'reserved_per_share', 'timeToMarket': 'time_to_market'}, inplace=True)
-            data.insert(11, 'create_time', str(time.strftime("%Y-%m-%d", time.localtime())))
+            # data.insert(11, 'create_time', str(time.strftime("%Y-%m-%d", time.localtime())))
 
             try:
                 self.engine.execute("TRUNCATE basic_stock")

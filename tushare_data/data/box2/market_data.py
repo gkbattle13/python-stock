@@ -58,7 +58,6 @@ class makret_data():
                          strUtils.noneToWdy(trade_date) + " start_date： " +
                          strUtils.noneToWdy(start_date) + " end_date： " +
                          strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
-        data.insert(4, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
         data.to_sql("makret_data_daily_1", self.engine, if_exists="append", index=False)
 
 
