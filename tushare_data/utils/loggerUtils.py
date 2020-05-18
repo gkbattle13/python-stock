@@ -4,15 +4,21 @@
 '''
 该日志类可以把不同级别的日志输出到不同的日志文件中,文件为根目录下文件
 '''
-import os
 import time
 import logging
 import inspect
+import os
 
 from pandas import DataFrame
-from sqlalchemy import create_engine
 
-file = "/Users/guo/Code/3. GIt/financial"
+
+# 获取绝对路径
+def get_path(path):
+    r = os.path.abspath(path)
+    return r
+
+
+file = get_path(path='../../')
 
 handlers = {logging.DEBUG: file + "/log-debug.log",
             logging.INFO: file + "/log-info.log",
@@ -77,9 +83,9 @@ class TNLog(object):
         self.__loggers[logging.CRITICAL].critical(message)
 
     # 用于在保存后记录出错的数据
-    def errorlog(self, fun_name=None, ts_code=None, trade_date=None, start_date=None, end_date=None, cal_date=None,
-                 time_num=None, e=None):
-        engine = create_engine('mysql://root:rootroot@localhost:3306/stock?charset=utf8')
+    def errorMysqlLog(self, engine, fun_name=None, ts_code=None, trade_date=None, start_date=None, end_date=None,
+                      cal_date=None,
+                      time_num=None, e=None):
         d2 = DataFrame({
             'fun_name': [str(fun_name)],
             'ts_code': [str(ts_code)],

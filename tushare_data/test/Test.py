@@ -16,7 +16,7 @@ from tushare_data.utils import loggerUtils
 """
 1. 开始时间为19901219 结束时间为 20180907
 """
-ts.set_token('d0b0a35f6e0993719abef6d8939d1e3690131732c161ec9d03b8b63f')
+ts.set_token('')
 pro = ts.pro_api()
 
 logger = loggerUtils.TNLog()
@@ -25,9 +25,6 @@ logger = loggerUtils.TNLog()
 
 
 # 创建Mysql数据库连接
-# engine = create_engine('mysql://wahaha:ceshi@106.14.238.126:3306/stock?charset=utf8')
-# engine = create_engine('mysql://root:root@2014@59.173.243.67:3308/stock?charset=utf8')
-# engine = create_engine('mysql://root:root@2014@10.0.11.21:3306/stock?charset=utf8')
 engine = create_engine('mysql://root:rootroot@localhost:3306/stock?charset=utf8', pool_size=30, max_overflow=30)
 
 

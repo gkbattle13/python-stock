@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # import pandas as pd
 import queue
+import sys
 import threading
 
 import tushare as ts
@@ -12,7 +13,6 @@ from tushare_data.data.box2 import market_data
 from tushare_data.data.box2.fund import fund
 from tushare_data.data.box2.quotes import quotes
 from tushare_data.utils import loggerUtils
-
 # 该类获取2003 SARS 期间的数据
 
 ts.set_token('')

@@ -28,8 +28,8 @@ class basic():
     """
 
     def stock_basic(self, is_hs, list_status, exchange):
+        info = "TuShare 基础数据 股票列表 "
         try:
-            info = "TuShare 基础数据 股票列表 "
             # 调用tushare获取数据
             data = self.pro.stock_basic(is_hs=is_hs, list_status=list_status, exchange=exchange,
                                         fields='ts_code,symbol,name,fullname,enname,exchange,curr_type,list_status,list_date,delist_date,is_hs')
@@ -48,8 +48,9 @@ class basic():
                 self.logger.info(info + str(e))
             # if_exists    append：如果表存在，则将数据添加到这个表的后面;  fail：如果表存在就不操作; replace：如果存在表，删了，重建
             data.to_sql("basic_stock", self.engine, if_exists="append", index=False)
+            raise Exception
         except Exception as e:
-            self.logger.error(info + "， 据报错：" + str(e))
+            self.logger.errorMysqlLog(self.engine, fun_name = info + "， 据报错：" + str(e))
 
     """
     交易日期
