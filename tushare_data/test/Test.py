@@ -21,9 +21,6 @@ pro = ts.pro_api()
 
 logger = loggerUtils.TNLog()
 
-# db = MySQLdb.connect(host='10.0.11.21', user='root', passwd='root@2014', db='stock')
-
-
 # 创建Mysql数据库连接
 engine = create_engine('mysql://root:rootroot@localhost:3306/stock?charset=utf8', pool_size=30, max_overflow=30)
 
