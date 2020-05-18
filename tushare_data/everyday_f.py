@@ -1,8 +1,8 @@
 # 获取基础数据
 import os
 import sys
-sys.path.append(os.path.abspath('..'))
-
+sysa = os.path.abspath('..')
+sys.path.append(sysa)
 from tushare_data import configuration
 from tushare_data.data.box2 import basic
 
