@@ -1,5 +1,7 @@
 import configparser
+import os
 import tushare as ts
+
 from tushare_data.utils import loggerUtils
 from sqlalchemy import create_engine
 
@@ -7,7 +9,8 @@ from sqlalchemy import create_engine
 # 获取SQL, ThShare, Log
 def sql_tuShare_log():
     cp = configparser.ConfigParser()
-    cp.read("config.ini")
+    path1 = os.path.abspath('.')
+    cp.read(path1+"/config.ini")
 
     # 获取thshare api
     tushare_token = cp.get("tushare", "tushare_token")
@@ -33,3 +36,5 @@ def get_config(section, option):
     cp = configparser.ConfigParser()
     cp.read("config.ini")
     return cp.get(section, option)
+
+sql_tuShare_log()

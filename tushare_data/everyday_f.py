@@ -1,13 +1,10 @@
 # 获取基础数据
-import sys
 import os
-
-sys.path.append(os.path.abspath('../'))
+import sys
+sys.path.append(os.path.abspath('..'))
 
 from tushare_data import configuration
 from tushare_data.data.box2 import basic
-
-
 
 def base(engine, pro, logger):
     basic_entry = basic.basic(engine, pro, logger)
