@@ -18,13 +18,22 @@ def get_path(path):
     return r
 
 
-file = get_path(path='../../')
-
-handlers = {logging.DEBUG: file + "/log-debug.log",
-            logging.INFO: file + "/log-info.log",
-            logging.WARNING: file + "/log-warning.log",
-            logging.ERROR: file + "/log-error.log",
-            logging.CRITICAL: file + "/log-critical.log"}
+# 获取当前文件路径
+current_path = inspect.getfile(inspect.currentframe())
+# 获取当前文件所在目录，相当于当前文件的父目录
+dir_name = os.path.dirname(current_path)
+# 转换为绝对路径
+file_abs_path = os.path.abspath(dir_name)
+# 划分目录，比如a/b/c划分后变为a/b和c
+list_path = os.path.split(file_abs_path)
+list_path1 = os.path.split(list_path[0])
+print("添加包路径为：" + list_path1[0])
+file = list_path1[0] + "/log"
+handlers = {logging.DEBUG: file + "/debug-"+ time.strftime("%Y%m%d", time.localtime()) +".log",
+            logging.INFO: file + "/info-"+ time.strftime("%Y%m%d", time.localtime()) +".log",
+            logging.WARNING: file + "/warning-"+ time.strftime("%Y%m%d", time.localtime()) +".log",
+            logging.ERROR: file + "/error-"+ time.strftime("%Y%m%d", time.localtime()) +".log",
+            logging.CRITICAL: file + "/critical-"+ time.strftime("%Y%m%d", time.localtime()) +".log"}
 
 
 def createHandlers():

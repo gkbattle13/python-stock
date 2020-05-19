@@ -41,11 +41,3 @@ def sql_tuShare_log():
     return engine, pro, logger
 
 
-# 获取配置文件
-def get_config(section, option):
-    cp = configparser.ConfigParser()
-    cp.read("config.ini")
-    return cp.get(section, option)
-
-
-sql_tuShare_log()
