@@ -1,7 +1,18 @@
 import configparser
+import inspect
 import os
+import sys
 import tushare as ts
-
+# 获取当前文件路径
+current_path = inspect.getfile(inspect.currentframe())
+# 获取当前文件所在目录，相当于当前文件的父目录
+dir_name = os.path.dirname(current_path)
+# 转换为绝对路径
+file_abs_path = os.path.abspath(dir_name)
+# 划分目录，比如a/b/c划分后变为a/b和c
+list_path = os.path.split(file_abs_path)
+print("添加包路径为：" + list_path[0])
+sys.path.append(list_path[0])
 from tushare_data.utils import loggerUtils
 from sqlalchemy import create_engine
 
@@ -9,9 +20,8 @@ from sqlalchemy import create_engine
 # 获取SQL, ThShare, Log
 def sql_tuShare_log():
     cp = configparser.ConfigParser()
-    path1 = os.path.abspath('.')
-    cp.read(path1+"/config.ini")
-
+    cp.read(file_abs_path + "/config.ini")
+    print("读取配置文件路径：" + file_abs_path + "/config.ini")
     # 获取thshare api
     tushare_token = cp.get("tushare", "tushare_token")
     ts.set_token(tushare_token)
@@ -36,5 +46,6 @@ def get_config(section, option):
     cp = configparser.ConfigParser()
     cp.read("config.ini")
     return cp.get(section, option)
+
 
 sql_tuShare_log()
