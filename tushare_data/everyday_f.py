@@ -85,8 +85,8 @@ def fund_t(engine, pro, logger):
 
 def run():
     engine, pro, logger = configuration.sql_tuShare_log()
-    # base_t(engine, pro, logger)
-    # makret_t(engine, pro, logger)
+    base_t(engine, pro, logger)
+    makret_t(engine, pro, logger)
     # fund_t(engine, pro, logger)
     reference_t(engine, pro, logger)
 
