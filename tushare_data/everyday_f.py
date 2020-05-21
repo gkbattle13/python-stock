@@ -24,19 +24,23 @@ from tushare_data.data.box2 import fund
 # 基础数据
 def base_t(engine, pro, logger):
     basic_entry = basic.basic(engine, pro, logger)
-    basic_entry.stock_basic(None, None, None)
+    basic_entry.stock_basic(None, None, None)  # 股票列表
+    basic_entry.hs_const("SH", None)  # 沪深股通成份股
+    basic_entry.hs_const("SZ", None)  # 沪深股通成份股
+    basic_entry.stock_company(None, None)  # 上市公司基本信息
+
 
 # 行情数据
 def makret_t(engine, pro, logger):
     market_entry = market_data.makret_data(engine, pro, logger)
-    market_entry.daily(trade_date=time.strftime("%Y%m%d", time.localtime())) # 日线
-    market_entry.daily_basic(trade_date=time.strftime("%Y%m%d", time.localtime()))
-    market_entry.money_flow(trade_date=time.strftime("%Y%m%d", time.localtime()))
-    market_entry.moneyflow_hsgt(trade_date=time.strftime("%Y%m%d", time.localtime()))
-    market_entry.hsgt_top10(trade_date=time.strftime("%Y%m%d", time.localtime()))
-    market_entry.hk_hold(trade_date=time.strftime("%Y%m%d", time.localtime()))
-    market_entry.ggt_daily(trade_date=time.strftime("%Y%m%d", time.localtime()))
-    market_entry.index_global(trade_date=time.strftime("%Y%m%d", time.localtime()))
+    market_entry.daily(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 日线
+    market_entry.daily_basic(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 每日指标
+    market_entry.money_flow(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 个股资金流向
+    market_entry.moneyflow_hsgt(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 沪深港通资金流向
+    market_entry.hsgt_top10(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 沪深股通十大成交股
+    market_entry.hk_hold(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 沪深港股通持股明细
+    market_entry.ggt_daily(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 港股通每日成交统计
+    market_entry.index_global(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 国际指数
 
     # market_entry.daily(trade_date="20200520") # 日线
     # market_entry.daily_basic(trade_date="20200520")
@@ -46,6 +50,7 @@ def makret_t(engine, pro, logger):
     # market_entry.hk_hold(trade_date="20200520")
     # market_entry.ggt_daily(trade_date="20200520")
     # market_entry.index_global(trade_date="20200520")
+
 
 # 基金数据
 def fund_t(engine, pro, logger):

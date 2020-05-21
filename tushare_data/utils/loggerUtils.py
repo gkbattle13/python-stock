@@ -108,6 +108,7 @@ class TNLog(object):
         description = full_name + a + "参数为：" + parameter
         self.insertInfoDaily(engine=engine, full_name=full_name, fun_name=fun_name, parameter=parameter, status=status,
                              error_info=error_info, result_count=result_count, description=description)
+        logger.info(description)
 
     # 写入mysql Info_daily
     def insertInfoDaily(self, engine, full_name=None, fun_name=None, parameter=None, status=None, error_info=None,

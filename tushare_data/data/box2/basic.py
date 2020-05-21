@@ -71,25 +71,47 @@ class basic():
             self.logger.error(info + "数据：" + str(e))
 
     """
-        获取频次：建议每天获取，对比变化
-        接口：hs_const  
+        接口：沪深股通成份股 hs_const  
         描述：获取沪股通、深股通成分数据
         hs_type	str	Y	类型SH沪股通SZ深股通
         is_new	str	N	是否最新 1 是 0 否 (默认1)
     """
 
     def hs_const(self, hs_type, is_new=None):
+        full_name = "TuShare 基础数据 沪深股通成份股 hs_const"
+        parameter = str({'hs_type': strUtils.noneToUndecided(hs_type), 'is_new': strUtils.noneToUndecided(is_new)})
         try:
-            # TODO 数据需要处理，对比出每天的变化
             data = self.pro.hs_const(hs_type=hs_type, is_new=is_new)
-            self.logger.info(
-                'TuShare 沪深股通成份股 hs_type: ' + strUtils.noneToUndecided(hs_type) + " is_new： " + strUtils.noneToUndecided(
-                    is_new) + ' 数据共：' + str(len(data)) + "条数据")
-            data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
             data.to_sql("basic_hs_const", self.engine, if_exists="append", index=False)
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="hs_const", parameter=parameter,
+                                  status=1, error_info=None, result_count=str(len(data)))
         except Exception as e:
-            self.logger.error("TuShare 获取沪股通、深股通成分数据：" + str(e))
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="hs_const", parameter=parameter,
+                                  status=0, error_info=str(e), result_count=None)
+    """     
+      接口：stock_company   先删除在添加
+      描述：获取上市公司基础信息
+      ts_code	str	Y	股票代码
+      exchange	str	Y	交易所代码 ，SSE上交所 SZSE深交所
+    """
 
+    def stock_company(self, ts_code=None, exchange=None):
+        full_name = "TuShare 基础数据 上市公司基础信息 stock_company"
+        parameter = str({'ts_code': strUtils.noneToUndecided(ts_code), 'exchange': strUtils.noneToUndecided(exchange)})
+        try:
+            data = self.pro.stock_company(ts_code=ts_code, exchange=exchange,
+                                          fields='ts_code,exchange,chairman,manager,secretary,reg_capital,setup_date,province,city,website,email,employees,main_business,business_scope')
+            # 清空basic_stock_company表，存放当天数据, 在没有数据返回的时候会报错，
+            try:
+                self.engine.execute("TRUNCATE basic_stock_company")
+            except Exception as e:
+                self.logger.info(full_name + str(e))
+            data.to_sql("basic_stock_company", self.engine, if_exists="append", index=False)
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stock_company", parameter=parameter,
+                                      status=1, error_info=None, result_count=str(len(data)))
+        except Exception as e:
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stock_company", parameter=parameter,
+                                      status=0, error_info=str(e), result_count=None)
     """
         获取频次：建议每天获取，对比变化
         接口：stk_managers  
@@ -125,29 +147,7 @@ class basic():
         except Exception as e:
             self.logger.error("TuShare 管理层薪酬和持股：" + str(e))
 
-    """     
-      接口：stock_company   先删除在添加
-      描述：获取上市公司基础信息
-      ts_code	str	Y	股票代码
-      exchange	str	Y	交易所代码 ，SSE上交所 SZSE深交所
-    """
 
-    def stock_company(self, ts_code=None, exchange=None):
-        try:
-            info = "TuShare 基础数据 上市公司基础信息 "
-            data = self.pro.stock_company(ts_code=ts_code, exchange=exchange,
-                                          fields='ts_code,exchange,chairman,manager,secretary,reg_capital,setup_date,province,city,website,email,employees,main_business,business_scope')
-            self.logger.info(info + '：' + ' 数据共：' + str(len(data)) + "条数据")
-
-            # 清空basic_stock_company表，存放当天数据, 在没有数据返回的时候会报错，
-            try:
-                self.engine.execute("TRUNCATE basic_stock_company")
-                data.insert(13, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
-                data.to_sql("basic_stock_company", self.engine, if_exists="append", index=False)
-            except Exception as e:
-                self.logger.info(info + str(e))
-        except Exception as e:
-            self.logger.error(info + str(e))
 
     """
       股票曾用名    先删除在获取 
