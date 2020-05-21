@@ -1,3 +1,5 @@
+import time
+
 import pandas as pd
 import sqlalchemy
 
@@ -308,22 +310,27 @@ class market_reference_resources():
 
     def concept_detail(self, id=None, ts_code=None):
         full_name = "TuShare 市场参考数据 概念股列表 concept_detail"
-        parameter = str(
-            {'id': strUtils.noneToUndecided(id), 'ts_code': strUtils.noneToUndecided(ts_code)})
+
         try:
             # data_concept =self.engine.executeQuery("select code from reference_concept")
             sql = "select code from reference_concept"
             concept = pd.read_sql(sql, self.engine)
             # if not pd.isnull(concept).date[0]:
             for index, row in concept.iterrows():
-                data = self.pro.concept_detail(id=row.code, ts_code=ts_code)
-                data.to_sql("reference_concept_detail", self.engine, if_exists="append", index=False)
-                self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="concept_detail",
-                                      parameter=parameter,
-                                      status=1, result_count=str(len(data)))
+                time.sleep(1)
+                parameter = str({'id': strUtils.noneToUndecided(row.code), 'ts_code': strUtils.noneToUndecided(ts_code)})
+                try:
+                    data = self.pro.concept_detail(id=row.code, ts_code=ts_code)
+                    data.to_sql("reference_concept_detail", self.engine, if_exists="append", index=False)
+                    self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="concept_detail",
+                                          parameter=parameter,
+                                          status=1, result_count=str(len(data)))
+                except Exception as e:
+                    self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="concept_detail",
+                                          parameter=parameter,
+                                          status=0, error_info=str(e), result_count=None)
         except Exception as e:
             self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="concept_detail",
-                                  parameter=parameter,
                                   status=0, error_info=str(e), result_count=None)
 
     """
