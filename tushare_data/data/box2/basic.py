@@ -27,29 +27,28 @@ class basic():
     """
 
     def stock_basic(self, is_hs, list_status, exchange):
-        info = "TuShare 基础数据 股票列表 "
+        full_name = "TuShare 基础数据 股票列表 stock_basic"
+        parameter = str({'is_hs': strUtils.noneToUndecided(is_hs), 'list_status': strUtils.noneToUndecided(is_hs), 'exchange': strUtils.noneToUndecided(is_hs)})
         try:
             # 调用tushare获取数据
             data = self.pro.stock_basic(is_hs=is_hs, list_status=list_status, exchange=exchange,
                                         fields='ts_code,symbol,name,fullname,enname,exchange,curr_type,list_status,list_date,delist_date,is_hs')
-            self.logger.info(info + '， 一共' + str(len(data)) + "条数据")
-
-            # 转换字段名称，添加时间字段信息
+            # 转换字段名称
             data.rename(
                 columns={'totalAssets': 'total_assets', 'fullname': 'full_name', 'liquidAssets': 'liquid_assets',
-                         'fixedAssets': 'fixed_assets',
-                         'reservedPerShare': 'reserved_per_share', 'timeToMarket': 'time_to_market'}, inplace=True)
-            # data.insert(11, 'create_time', str(time.strftime("%Y-%m-%d", time.localtime())))
-
+                         'fixedAssets': 'fixed_assets', 'reservedPerShare': 'reserved_per_share',
+                         'timeToMarket': 'time_to_market'}, inplace=True)
             try:
                 self.engine.execute("TRUNCATE basic_stock")
             except Exception as e:
-                self.logger.info(info + str(e))
+                self.logger.info(full_name + str(e))
             # if_exists    append：如果表存在，则将数据添加到这个表的后面;  fail：如果表存在就不操作; replace：如果存在表，删了，重建
             data.to_sql("basic_stock", self.engine, if_exists="append", index=False)
-            raise Exception
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stock_basic", parameter=parameter,
+                                  status=1, error_info=None, result_count=str(len(data)))
         except Exception as e:
-            self.logger.errorMysqlLog(self.engine, fun_name = info + "， 据报错：" + str(e))
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stock_basic", parameter=parameter,
+                                  status=0, error_info=str(e), result_count=None)
 
     """
     交易日期
@@ -61,11 +60,11 @@ class basic():
     """
 
     def trade_Cal(self, exchange=None, start_date=None, end_date=None):
+        info = "TuShare 基础数据 交易日历 "
         try:
-            info = "TuShare 基础数据 交易日历 "
             data = self.pro.trade_cal(exchange=exchange, start_date=start_date, end_date=end_date,
                                       fields="exchange,cal_date,is_open,pretrade_date")
-            self.logger.info(info + strUtils.noneToWdy(start_date) + " 到end_date： " + strUtils.noneToWdy(
+            self.logger.info(info + strUtils.noneToUndecided(start_date) + " 到end_date： " + strUtils.noneToUndecided(
                 end_date) + ' 数据共：' + str(len(data)) + "条数据")
             data.to_sql("basic_trade_cal", self.engine, if_exists="append", index=False)
         except Exception as e:
@@ -84,7 +83,7 @@ class basic():
             # TODO 数据需要处理，对比出每天的变化
             data = self.pro.hs_const(hs_type=hs_type, is_new=is_new)
             self.logger.info(
-                'TuShare 沪深股通成份股 hs_type: ' + strUtils.noneToWdy(hs_type) + " is_new： " + strUtils.noneToWdy(
+                'TuShare 沪深股通成份股 hs_type: ' + strUtils.noneToUndecided(hs_type) + " is_new： " + strUtils.noneToUndecided(
                     is_new) + ' 数据共：' + str(len(data)) + "条数据")
             data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
             data.to_sql("basic_hs_const", self.engine, if_exists="append", index=False)
@@ -103,7 +102,7 @@ class basic():
             # TODO 数据需要处理，对比出每天的变化
             data = self.pro.stk_managers(ts_code=ts_code)
             self.logger.info(
-                'TuShare 上市公司管理层 stk_managers: ' + strUtils.noneToWdy(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
+                'TuShare 上市公司管理层 stk_managers: ' + strUtils.noneToUndecided(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
             data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
             data.to_sql("basic_stk_managers", self.engine, if_exists="append", index=False)
         except Exception as e:
@@ -120,7 +119,7 @@ class basic():
         try:
             data = self.pro.stk_rewards(ts_code=ts_code, end_date=end_date)
             self.logger.info(
-                'TuShare 管理层薪酬和持股 stk_managers: ' + strUtils.noneToWdy(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
+                'TuShare 管理层薪酬和持股 stk_managers: ' + strUtils.noneToUndecided(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
             data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
             data.to_sql("basic_stk_rewards", self.engine, if_exists="append", index=False)
         except Exception as e:
@@ -165,8 +164,8 @@ class basic():
             # TODO 目前未发现可用的有效信息，暂时不获取该接口数据
             data = self.pro.namechange(ts_code=ts_code, start_date=start_date, end_date=end_date,
                                        fields='ts_code,name,start_date,end_date,ann_date,change_reason')
-            self.logger.info('TuShare 股票曾用名 start_date: ' + strUtils.noneToWdy(start_date) + " 到end_date： " +
-                             strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
+            self.logger.info('TuShare 股票曾用名 start_date: ' + strUtils.noneToUndecided(start_date) + " 到end_date： " +
+                             strUtils.noneToUndecided(end_date) + ' 数据共：' + str(len(data)) + "条数据")
             # 清空basic_stock表，存放当天数据, 在没有数据返回的时候会报错，
             # try:
             # pd.read_sql_query("TRUNCATE basic_name_change", con=self.engine)
@@ -191,8 +190,8 @@ class basic():
         try:
             # TODO 目前未发现可用的有效信息，暂时不获取该接口数据
             data = self.pro.new_share(start_date=start_date, end_date=end_date)
-            self.logger.info('TuShare IPO新股列表 start_date: ' + strUtils.noneToWdy(start_date) + " 到end_date： " +
-                             strUtils.noneToWdy(end_date) + ' 数据共：' + str(len(data)) + "条数据")
+            self.logger.info('TuShare IPO新股列表 start_date: ' + strUtils.noneToUndecided(start_date) + " 到end_date： " +
+                             strUtils.noneToUndecided(end_date) + ' 数据共：' + str(len(data)) + "条数据")
             data.to_sql("basic_new_share", self.engine, if_exists="append", index=False)
         except Exception as e:
             self.logger.error("TuShare IPO新股列表：" + str(e))

@@ -26,15 +26,15 @@ class quotes():
         try:
             data = self.pro.daily(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date)
             data.to_sql("quotes_daily", self.engine, if_exists="append", index=False)
-            self.logger.info("TuShare 获取行情数据成功：ts_code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
-                             strUtils.noneToWdy(trade_date) + ",  开始日期： " + strUtils.noneToWdy(start_date) +
-                             ", 结束日期：  " + strUtils.noneToWdy(end_date) + " ,  数据量： " + str(len(data)) + "成功")
+            self.logger.info("TuShare 获取行情数据成功：ts_code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
+                             strUtils.noneToUndecided(trade_date) + ",  开始日期： " + strUtils.noneToUndecided(start_date) +
+                             ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " ,  数据量： " + str(len(data)) + "成功")
         except Exception as e:
             self.logger.errorlog(fun_name='daily', ts_code=ts_code, trade_date=trade_date, start_date=start_date,
                                  end_date=end_date,e=str(e))
-            self.logger.error("TuShare 获取行情数据失败：code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
-                              strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
-                              ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
+            self.logger.error("TuShare 获取行情数据失败：code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
+                              strUtils.noneToUndecided(trade_date) + "  开始日期： " + strUtils.noneToUndecided(start_date) +
+                              ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " , 失败，错误详情： " + str(e))
 
     """
     更新时间：早上9点30分
@@ -51,7 +51,7 @@ class quotes():
         try:
             data = self.pro.adj_factor(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date)
             data.to_sql("quotes_adj_factor", self.engine, if_exists="append", index=False)
-            self.logger.info("TuShare 获取复权因子成功" + "日期：" + strUtils.noneToWdy(trade_date) + ",数据量： " + str(len(data)) + "成功")
+            self.logger.info("TuShare 获取复权因子成功" + "日期：" + strUtils.noneToUndecided(trade_date) + ",数据量： " + str(len(data)) + "成功")
         except Exception as e:
             self.logger.errorlog(fun_name='adj_trade', trade_date=trade_date, start_date=start_date, end_date=end_date,
                                  e=str(e))
@@ -71,14 +71,14 @@ class quotes():
         try:
             data = self.pro.suspend(ts_code=ts_code, suspend_date=suspend_date, resume_date=resume_date)
             data.to_sql("quotes_suspend", self.engine, if_exists="append", index=False)
-            self.logger.info("TuShare 获取停复牌信息成功，ts_code：" + strUtils.noneToWdy(ts_code) + "停盘日期：" +
-                             strUtils.noneToWdy(suspend_date) + "复牌日期: " + strUtils.noneToWdy(resume_date) +
+            self.logger.info("TuShare 获取停复牌信息成功，ts_code：" + strUtils.noneToUndecided(ts_code) + "停盘日期：" +
+                             strUtils.noneToUndecided(suspend_date) + "复牌日期: " + strUtils.noneToUndecided(resume_date) +
                 ", 数据量：" + str(len(data)))
         except Exception as e:
             self.logger.error(fun_name='suspend', ts_code=ts_code,  start_date=suspend_date, end_date=resume_date, e=str(e))
             self.logger.error(
-                "TuShare 获取停复牌信息失败，ts_code：" + strUtils.noneToWdy(ts_code) + "停盘日期：" +
-                strUtils.noneToWdy(suspend_date) + "复牌日期: " + strUtils.noneToWdy(resume_date) + ", 数据获取失败" + str(e))
+                "TuShare 获取停复牌信息失败，ts_code：" + strUtils.noneToUndecided(ts_code) + "停盘日期：" +
+                strUtils.noneToUndecided(suspend_date) + "复牌日期: " + strUtils.noneToUndecided(resume_date) + ", 数据获取失败" + str(e))
 
 
     """
@@ -95,15 +95,15 @@ class quotes():
         try:
             data = self.pro.daily_basic(ts_code=ts_code,trade_date=trade_date, start_date=start_date, end_date=end_date)
             data.to_sql("quotes_daily_basic", self.engine, if_exists="append", index=False)
-            self.logger.info("TuShare 获取基本面指标成功：ts_code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
-                             strUtils.noneToWdy(trade_date) + ",  开始日期： " + strUtils.noneToWdy(start_date) +
-                ", 结束日期：  " + strUtils.noneToWdy(end_date) + " ,  数据量： " + str(len(data)) + "成功")
+            self.logger.info("TuShare 获取基本面指标成功：ts_code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
+                             strUtils.noneToUndecided(trade_date) + ",  开始日期： " + strUtils.noneToUndecided(start_date) +
+                ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " ,  数据量： " + str(len(data)) + "成功")
         except Exception as e:
             self.logger.errorlog(fun_name='daily_basic', ts_code=ts_code, trade_date=trade_date, start_date=start_date,
                                  end_date=end_date, e=str(e))
-            self.logger.error("TuShare 获取基本面指标失败：code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
-                              strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
-                              ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
+            self.logger.error("TuShare 获取基本面指标失败：code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
+                              strUtils.noneToUndecided(trade_date) + "  开始日期： " + strUtils.noneToUndecided(start_date) +
+                              ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " , 失败，错误详情： " + str(e))
 
 
     """
@@ -125,12 +125,12 @@ class quotes():
         try:
             data = self.pro.pro_bar(ts_code=ts_code,trade_date=trade_date, start_date=start_date, end_date=end_date)
             data.to_sql("quotes_daily_basic", self.engine, if_exists="append", index=False)
-            self.logger.info("TuShare 获取基本面指标成功：ts_code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
-                             strUtils.noneToWdy(trade_date) + ",  开始日期： " + strUtils.noneToWdy(start_date) +
-                ", 结束日期：  " + strUtils.noneToWdy(end_date) + " ,  数据量： " + str(len(data)) + "成功")
+            self.logger.info("TuShare 获取基本面指标成功：ts_code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
+                             strUtils.noneToUndecided(trade_date) + ",  开始日期： " + strUtils.noneToUndecided(start_date) +
+                ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " ,  数据量： " + str(len(data)) + "成功")
         except Exception as e:
             self.logger.errorlog(fun_name='daily_basic', ts_code=ts_code, trade_date=trade_date, start_date=start_date,
                                  end_date=end_date, e=str(e))
-            self.logger.error("TuShare 获取基本面指标失败：code：" + strUtils.noneToWdy(ts_code) + ", 交易日期：" +
-                              strUtils.noneToWdy(trade_date) + "  开始日期： " + strUtils.noneToWdy(start_date) +
-                              ", 结束日期：  " + strUtils.noneToWdy(end_date) + " , 失败，错误详情： " + str(e))
+            self.logger.error("TuShare 获取基本面指标失败：code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
+                              strUtils.noneToUndecided(trade_date) + "  开始日期： " + strUtils.noneToUndecided(start_date) +
+                              ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " , 失败，错误详情： " + str(e))

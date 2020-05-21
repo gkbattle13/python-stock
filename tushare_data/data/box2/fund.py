@@ -26,10 +26,10 @@ class fund():
             data = self.pro.fund_basic(market=None)
             data.to_sql("fund_basic", self.engine, if_exists="append", index=False)
             self.logger.info(
-                "TuShare 获取公墓基金数据列表：market：" + strUtils.noneToWdy(market) + " ,  数据量： " + str(len(data)) + "成功")
+                "TuShare 获取公墓基金数据列表：market：" + strUtils.noneToUndecided(market) + " ,  数据量： " + str(len(data)) + "成功")
         except Exception as e:
             self.logger.errorlog(engine=self.engine, fun_name='fund_basic', e=str(e))
-            self.logger.error("TuShare 获取公墓基金数据列表：market：" + strUtils.noneToWdy(market) + " , 失败，错误详情： " + str(e))
+            self.logger.error("TuShare 获取公墓基金数据列表：market：" + strUtils.noneToUndecided(market) + " , 失败，错误详情： " + str(e))
 
     """
     接口：fund_company
@@ -59,12 +59,12 @@ class fund():
             data = self.pro.fund_nav(ts_code=ts_code, end_date=end_date)
             data.to_sql("fund_nav", self.engine, if_exists="append", index=False)
             self.logger.info(
-                "TuShare 获取公募基金净值数据：ts_code：" + strUtils.noneToWdy(ts_code) + ", end_date: " + strUtils.noneToWdy(
+                "TuShare 获取公募基金净值数据：ts_code：" + strUtils.noneToUndecided(ts_code) + ", end_date: " + strUtils.noneToUndecided(
                     end_date) + " ,  数据量： " + str(len(data)) + "成功")
         except Exception as e:
             self.logger.errorlog(fun_name='fund_nav', ts_code=ts_code, end_date=end_date, e=str(e))
             self.logger.error(
-                "TuShare 获取公募基金净值数据：ts_code：" + strUtils.noneToWdy(ts_code) + ", end_date: " + strUtils.noneToWdy(
+                "TuShare 获取公募基金净值数据：ts_code：" + strUtils.noneToUndecided(ts_code) + ", end_date: " + strUtils.noneToUndecided(
                     end_date) + " , 失败，错误详情： " + str(e))
 
     """
@@ -78,15 +78,15 @@ class fund():
             data = self.pro.fund_div(ann_date=ann_date, ex_date=ex_date, pay_date=pay_date, ts_code=ts_code)
             data.to_sql("fund_div", self.engine, if_exists="append", index=False)
             self.logger.info(
-                "TuShare 获取公募基金分红数据：ts_code：" + strUtils.noneToWdy(ts_code) + ", ann_date: " + strUtils.noneToWdy(
-                    ann_date) + ", ex_date: " + strUtils.noneToWdy(ex_date) + ", pay_date: " + strUtils.noneToWdy(
+                "TuShare 获取公募基金分红数据：ts_code：" + strUtils.noneToUndecided(ts_code) + ", ann_date: " + strUtils.noneToUndecided(
+                    ann_date) + ", ex_date: " + strUtils.noneToUndecided(ex_date) + ", pay_date: " + strUtils.noneToUndecided(
                     pay_date) + " ,  数据量： " + str(len(data)) + "成功")
         except Exception as e:
             self.logger.errorlog(fun_name='fund_div', ts_code=ts_code, start_date=ann_date, end_date=ex_date,
                                  cal_date=pay_date, e=str(e))
             self.logger.error(
-                "TuShare 获取公募基金分红数据：ts_code：" + strUtils.noneToWdy(ts_code) + ", ann_date: " + strUtils.noneToWdy(
-                    ann_date) + ", ex_date: " + strUtils.noneToWdy(ex_date) + ", pay_date: " + strUtils.noneToWdy(
+                "TuShare 获取公募基金分红数据：ts_code：" + strUtils.noneToUndecided(ts_code) + ", ann_date: " + strUtils.noneToUndecided(
+                    ann_date) + ", ex_date: " + strUtils.noneToUndecided(ex_date) + ", pay_date: " + strUtils.noneToUndecided(
                     pay_date) + " , 失败，错误详情： " + str(e))
 
     """
@@ -100,11 +100,11 @@ class fund():
             data = self.pro.fund_portfolio(ts_code=ts_code)
             data.to_sql("fund_portfolio", self.engine, if_exists="append", index=False)
             self.logger.info(
-                "TuShare 获取公募基金持仓数据，季度更新：ts_code：" + strUtils.noneToWdy(ts_code) + " ,  数据量： " + str(len(data)) + "成功")
+                "TuShare 获取公募基金持仓数据，季度更新：ts_code：" + strUtils.noneToUndecided(ts_code) + " ,  数据量： " + str(len(data)) + "成功")
         except Exception as e:
             self.logger.errorlog(fun_name='fund_portfolio', ts_code=ts_code, e=str(e))
             self.logger.error(
-                "TuShare 获取公募基金持仓数据，季度更新：ts_code：" + strUtils.noneToWdy(ts_code) + " , 失败，错误详情： " + str(e))
+                "TuShare 获取公募基金持仓数据，季度更新：ts_code：" + strUtils.noneToUndecided(ts_code) + " , 失败，错误详情： " + str(e))
 
     """
     接口：fund_daily
@@ -123,8 +123,8 @@ class fund():
             data = self.pro.fund_portfolio(ts_code=ts_code)
             data.to_sql("fund_daily", self.engine, if_exists="append", index=False)
             self.logger.info(
-                "TuShare 获取公募基金持仓数据，季度更新：ts_code：" + strUtils.noneToWdy(ts_code) + " ,  数据量： " + str(len(data)) + "成功")
+                "TuShare 获取公募基金持仓数据，季度更新：ts_code：" + strUtils.noneToUndecided(ts_code) + " ,  数据量： " + str(len(data)) + "成功")
         except Exception as e:
             self.logger.errorlog(fun_name='fund_daily', ts_code=ts_code, e=str(e))
             self.logger.error(
-                "TuShare 获取公募基金持仓数据，季度更新：ts_code：" + strUtils.noneToWdy(ts_code) + " , 失败，错误详情： " + str(e))
+                "TuShare 获取公募基金持仓数据，季度更新：ts_code：" + strUtils.noneToUndecided(ts_code) + " , 失败，错误详情： " + str(e))

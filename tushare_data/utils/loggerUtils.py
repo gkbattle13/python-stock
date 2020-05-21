@@ -11,13 +11,6 @@ import os
 
 from pandas import DataFrame
 
-
-# 获取绝对路径
-def get_path(path):
-    r = os.path.abspath(path)
-    return r
-
-
 # 获取当前文件路径
 current_path = inspect.getfile(inspect.currentframe())
 # 获取当前文件所在目录，相当于当前文件的父目录
@@ -29,11 +22,11 @@ list_path = os.path.split(file_abs_path)
 list_path1 = os.path.split(list_path[0])
 print("添加包路径为：" + list_path1[0])
 file = list_path1[0] + "/log"
-handlers = {logging.DEBUG: file + "/debug-"+ time.strftime("%Y%m%d", time.localtime()) +".log",
-            logging.INFO: file + "/info-"+ time.strftime("%Y%m%d", time.localtime()) +".log",
-            logging.WARNING: file + "/warning-"+ time.strftime("%Y%m%d", time.localtime()) +".log",
-            logging.ERROR: file + "/error-"+ time.strftime("%Y%m%d", time.localtime()) +".log",
-            logging.CRITICAL: file + "/critical-"+ time.strftime("%Y%m%d", time.localtime()) +".log"}
+handlers = {logging.DEBUG: file + "/debug-" + time.strftime("%Y%m%d", time.localtime()) + ".log",
+            logging.INFO: file + "/info-" + time.strftime("%Y%m%d", time.localtime()) + ".log",
+            logging.WARNING: file + "/warning-" + time.strftime("%Y%m%d", time.localtime()) + ".log",
+            logging.ERROR: file + "/error-" + time.strftime("%Y%m%d", time.localtime()) + ".log",
+            logging.CRITICAL: file + "/critical-" + time.strftime("%Y%m%d", time.localtime()) + ".log"}
 
 
 def createHandlers():
@@ -107,6 +100,29 @@ class TNLog(object):
             'time': [time_num]
         })
         d2.to_sql("error_daily", engine, if_exists="append", index=False)
+
+    # 通用记录方法
+    def infoMysql(self, engine, full_name=None, fun_name=None, parameter=None, status=None, error_info=None,
+                  result_count=None):
+        a = "获取成功，" if status == 1 else "获取失败，"
+        description = full_name + a + "参数为：" + parameter
+        self.insertInfoDaily(engine=engine, full_name=full_name, fun_name=fun_name, parameter=parameter, status=status,
+                             error_info=error_info, result_count=result_count, description=description)
+
+    # 写入mysql Info_daily
+    def insertInfoDaily(self, engine, full_name=None, fun_name=None, parameter=None, status=None, error_info=None,
+                        result_count=None, description=None):
+        d2 = DataFrame({
+            'full_name': [str(full_name)],
+            'fun_name': [str(fun_name)],
+            'parameter': [str(parameter)],
+            'status': [str(status)],
+            'error_info': [str(error_info)],
+            'result_count': [str(result_count)],
+            'description': [str(description)],
+            'create_time': [time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())],
+        })
+        d2.to_sql("info_daily", engine, if_exists="append", index=False)
 
 
 if __name__ == "__main__":
