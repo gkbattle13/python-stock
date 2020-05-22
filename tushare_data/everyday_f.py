@@ -33,15 +33,17 @@ def base_t(engine, pro, logger):
 
 # 行情数据
 def makret_t(engine, pro, logger):
+    # needDate = time.strftime("%Y%m%d", time.localtime())
+    needDate = "20200520"
     market_entry = market_data.makret_data(engine, pro, logger)
-    market_entry.daily(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 日线
-    market_entry.daily_basic(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 每日指标
-    market_entry.money_flow(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 个股资金流向
-    market_entry.moneyflow_hsgt(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 沪深港通资金流向
-    market_entry.hsgt_top10(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 沪深股通十大成交股
-    market_entry.hk_hold(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 沪深港股通持股明细
-    market_entry.ggt_daily(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 港股通每日成交统计
-    market_entry.index_global(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 国际指数
+    market_entry.daily(trade_date=needDate)  # 日线
+    market_entry.daily_basic(trade_date=needDate)  # 每日指标
+    market_entry.money_flow(trade_date=needDate)  # 个股资金流向
+    market_entry.moneyflow_hsgt(trade_date=needDate)  # 沪深港通资金流向
+    market_entry.hsgt_top10(trade_date=needDate)  # 沪深股通十大成交股
+    market_entry.hk_hold(trade_date=needDate)  # 沪深港股通持股明细
+    market_entry.ggt_daily(trade_date=needDate)  # 港股通每日成交统计
+    market_entry.index_global(trade_date=needDate)  # 国际指数
 
     # market_entry.daily(trade_date="20200520") # 日线
     # market_entry.daily_basic(trade_date="20200520")
@@ -55,17 +57,19 @@ def makret_t(engine, pro, logger):
 
 # 市场产考信息
 def reference_t(engine, pro, logger):
+    # needDate = time.strftime("%Y%m%d", time.localtime())
+    needDate = "20200520"
     reference_entry = market_reference_resources.market_reference_resources(engine, pro, logger)
-    reference_entry.stk_holdertrade(ann_date=time.strftime("%Y%m%d", time.localtime()))  # 股东增减持
-    reference_entry.ggt_top10(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 港股通十大成交股
-    reference_entry.margin(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 融资融券交易汇总
-    reference_entry.margin_detail(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 融资融券交易明细
-    reference_entry.top_list(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 龙虎榜每日明细
-    reference_entry.top_inst(trade_date=time.strftime("%Y%m%d", time.localtime()))  # 龙虎榜机构明细
-    reference_entry.repurchase(ann_date=time.strftime("%Y%m%d", time.localtime()))  # 股票回购
+    reference_entry.stk_holdertrade(ann_date=needDate)  # 股东增减持
+    reference_entry.ggt_top10(trade_date=needDate)  # 港股通十大成交股
+    reference_entry.margin(trade_date=needDate)  # 融资融券交易汇总
+    reference_entry.margin_detail(trade_date=needDate)  # 融资融券交易明细
+    reference_entry.top_list(trade_date=needDate)  # 龙虎榜每日明细
+    reference_entry.top_inst(trade_date=needDate)  # 龙虎榜机构明细
+    reference_entry.repurchase(ann_date=needDate)  # 股票回购
     reference_entry.concept()  # 概念股分类
     reference_entry.concept_detail()  # 概念股列表
-    reference_entry.share_float(ann_date=time.strftime("%Y%m%d", time.localtime()))  # 限售股解禁
+    reference_entry.share_float(ann_date=needDate)  # 限售股解禁
 
     # reference_entry.ggt_top10(trade_date="20200520")
     # reference_entry.margin_detail(trade_date="20200520")
@@ -74,8 +78,6 @@ def reference_t(engine, pro, logger):
     # reference_entry.share_float(ann_date='20181220')
     # reference_entry.block_trade(trade_date='20200519') # 大宗交易，好像只能获取前天的
     # reference_entry.stk_account() # 股票账户开户数据统计周期为一周
-
-
 
 
 # 基金数据

@@ -104,8 +104,9 @@ class TNLog(object):
     # 通用记录方法
     def infoMysql(self, engine, full_name=None, fun_name=None, parameter=None, status=None, error_info=None,
                   result_count=None):
-        a = "获取成功，" if status == 1 else "获取失败，"
-        description = full_name + a + "参数为：" + parameter
+        a = (" 获取成功，数据量为" + result_count) if status == 1 else " 获取失败"
+        description = full_name + a + "，参数为：" + parameter
+        self.info(description)
         self.insertInfoDaily(engine=engine, full_name=full_name, fun_name=fun_name, parameter=parameter, status=status,
                              error_info=error_info, result_count=result_count, description=description)
 

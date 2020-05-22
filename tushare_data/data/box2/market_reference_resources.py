@@ -317,14 +317,14 @@ class market_reference_resources():
             concept = pd.read_sql(sql, self.engine)
             # if not pd.isnull(concept).date[0]:
             for index, row in concept.iterrows():
-                time.sleep(5)
+                time.sleep(3)
                 parameter = str({'id': strUtils.noneToUndecided(row.code), 'ts_code': strUtils.noneToUndecided(ts_code)})
                 try:
                     data = self.pro.concept_detail(id=row.code, ts_code=ts_code)
                     data.to_sql("reference_concept_detail", self.engine, if_exists="append", index=False)
-                    self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="concept_detail",
-                                          parameter=parameter,
-                                          status=1, result_count=str(len(data)))
+                    # self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="concept_detail",
+                    #                       parameter=parameter,
+                    #                       status=1, result_count=str(len(data)))
                 except Exception as e:
                     self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="concept_detail",
                                           parameter=parameter,
