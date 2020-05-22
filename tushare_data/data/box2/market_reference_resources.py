@@ -317,7 +317,7 @@ class market_reference_resources():
             concept = pd.read_sql(sql, self.engine)
             # if not pd.isnull(concept).date[0]:
             for index, row in concept.iterrows():
-                time.sleep(3)
+                time.sleep(2)
                 parameter = str({'id': strUtils.noneToUndecided(row.code), 'ts_code': strUtils.noneToUndecided(ts_code)})
                 try:
                     data = self.pro.concept_detail(id=row.code, ts_code=ts_code)
