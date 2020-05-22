@@ -57,8 +57,8 @@ def makret_t(engine, pro, logger):
 
 # 市场产考信息
 def reference_t(engine, pro, logger):
-    # needDate = time.strftime("%Y%m%d", time.localtime())
-    needDate = "20200520"
+    needDate = time.strftime("%Y%m%d", time.localtime())
+    # needDate = "20200520"
     reference_entry = market_reference_resources.market_reference_resources(engine, pro, logger)
     reference_entry.stk_holdertrade(ann_date=needDate)  # 股东增减持
     reference_entry.ggt_top10(trade_date=needDate)  # 港股通十大成交股
