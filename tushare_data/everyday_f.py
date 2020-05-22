@@ -93,7 +93,7 @@ def run():
     # fund_t(engine, pro, logger)
     reference_t(engine, pro, logger)
     time_end = time.time()
-    logger.info("f-clock 运行完成共用时：",time_end-time_start,'s')
+    logger.info("f-clock 运行完成共用时："+ str(time_end-time_start) + 's')
 
 
 run()
