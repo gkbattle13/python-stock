@@ -345,7 +345,7 @@ class market_reference_resources():
       """
 
     def share_float(self, ts_code=None, ann_date=None, float_date=None, start_date=None, end_date=None):
-        full_name = "TuShare 市场参考数据 股票回购 pledge_detail"
+        full_name = "TuShare 市场参考数据 限售股解禁 pledge_detail"
         parameter = str(
             {'ts_code': strUtils.noneToUndecided(ts_code), 'ann_date': strUtils.noneToUndecided(ann_date),
              'start_date': strUtils.noneToUndecided(start_date),
