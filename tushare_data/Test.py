@@ -8,6 +8,8 @@ import sys
 import threading
 
 # 获取当前文件路径
+from tushare_data import configuration
+
 current_path = inspect.getfile(inspect.currentframe())
 # 获取当前文件所在目录，相当于当前文件的父目录
 dir_name = os.path.dirname(current_path)
@@ -20,7 +22,6 @@ sys.path.append(list_path[0])
 
 
 
-from tushare_data import configuration
 import tushare as ts
 from sqlalchemy import create_engine
 
@@ -188,7 +189,7 @@ def getAll():
     basic_entry.stock_company(None, None)  # 上市公司基本信息
     basic_entry.trade_Cal()  # 上市公司基本信息
     market_entry = market_data.makret_data(engine, pro, logger)
-    market_entry.daily_cycle(start_date="20180101",end_date="20200531")
+    market_entry.daily_tucycle(start_date="20180101",end_date="20200531")
 
 
 getAll()
