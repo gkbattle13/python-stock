@@ -33,8 +33,8 @@ def base_t(engine, pro, logger):
 
 # 行情数据
 def makret_t(engine, pro, logger):
-    # needDate = time.strftime("%Y%m%d", time.localtime())
-    needDate = "20200520"
+    needDate = time.strftime("%Y%m%d", time.localtime())
+    # needDate = "20200520"
     market_entry = market_data.makret_data(engine, pro, logger)
     market_entry.daily(trade_date=needDate)  # 日线
     market_entry.daily_basic(trade_date=needDate)  # 每日指标

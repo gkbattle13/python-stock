@@ -36,8 +36,9 @@ class makret_data():
         data_1 = pd.read_sql(sql, self.engine)
         for index, row in data_1.iterrows():
             date_2 = row["cal_date"]
-            date_2.decode('utf8')
+            # date_2.decode('utf8')
             self.daily(trade_date=date_2)
+            self.daily_basic(trade_date=date_2)
 
     """
     根据输入的日期循环获取一段时间内沪深港通资金流向 循环调用moneyflow_hsgt接口,使用trade_date参数，可能有些股票现在不存在
