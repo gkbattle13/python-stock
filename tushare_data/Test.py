@@ -7,9 +7,6 @@ import queue
 import sys
 import threading
 
-# 获取当前文件路径
-from tushare_data import configuration
-
 current_path = inspect.getfile(inspect.currentframe())
 # 获取当前文件所在目录，相当于当前文件的父目录
 dir_name = os.path.dirname(current_path)
@@ -21,7 +18,8 @@ print("添加包路径为：" + list_path[0])
 sys.path.append(list_path[0])
 
 
-
+# 获取当前文件路径
+from tushare_data import configuration
 import tushare as ts
 from sqlalchemy import create_engine
 
