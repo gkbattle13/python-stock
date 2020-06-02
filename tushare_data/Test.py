@@ -187,7 +187,7 @@ def getAll():
     # basic_entry.stock_company(None, None)  # 上市公司基本信息
     # basic_entry.trade_Cal()  # 交易日历
     market_entry = market_data.makret_data(engine, pro, logger)
-    market_entry.daily_cycle(start_date="20180101",end_date="20200531")
+    market_entry.daily_cycle(start_date="20180101",end_date="20200601")
 
 
 getAll()
