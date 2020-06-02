@@ -180,12 +180,12 @@ from tushare_data.utils import loggerUtils
 def getAll():
     engine, pro, logger = configuration.sql_tuShare_log()
         # 基础数据测试
-    basic_entry = basic.basic(engine, pro, logger)
-    basic_entry.stock_basic(None, None, None)  # 股票列表
-    basic_entry.hs_const("SH", None)  # 沪深股通成份股
-    basic_entry.hs_const("SZ", None)  # 沪深股通成份股
-    basic_entry.stock_company(None, None)  # 上市公司基本信息
-    basic_entry.trade_Cal()  # 上市公司基本信息
+    # basic_entry = basic.basic(engine, pro, logger)
+    # basic_entry.stock_basic(None, None, None)  # 股票列表
+    # basic_entry.hs_const("SH", None)  # 沪深股通成份股
+    # basic_entry.hs_const("SZ", None)  # 沪深股通成份股
+    # basic_entry.stock_company(None, None)  # 上市公司基本信息
+    # basic_entry.trade_Cal()  # 交易日历
     market_entry = market_data.makret_data(engine, pro, logger)
     market_entry.daily_cycle(start_date="20180101",end_date="20200531")
 
