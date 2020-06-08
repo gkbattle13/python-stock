@@ -7,6 +7,8 @@ import queue
 import sys
 import threading
 
+from tushare_data.data.box2 import market_reference_resources
+
 current_path = inspect.getfile(inspect.currentframe())
 # 获取当前文件所在目录，相当于当前文件的父目录
 dir_name = os.path.dirname(current_path)
@@ -186,8 +188,14 @@ def getAll():
     # basic_entry.hs_const("SZ", None)  # 沪深股通成份股
     # basic_entry.stock_company(None, None)  # 上市公司基本信息
     # basic_entry.trade_Cal()  # 交易日历
-    market_entry = market_data.makret_data(engine, pro, logger)
-    market_entry.daily_cycle(start_date="20180101",end_date="20200601")
+    # market_entry = market_data.makret_data(engine, pro, logger)
+    # market_entry.daily_cycle(start_date="20180101",end_date="20200601")
+
+    # a = market_entry.daily(ts_code= "000001.SZ", trade_date="20200323")
+    # b = market_entry.daily_basic(ts_code = "000001.SZ", trade_date="20200323")
+    reference_entry = market_reference_resources.market_reference_resources(engine, pro, logger)
+    reference_entry.concept_detail()
+    print("wer")
 
 
 getAll()

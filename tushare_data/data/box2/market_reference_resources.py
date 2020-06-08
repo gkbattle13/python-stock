@@ -316,6 +316,11 @@ class market_reference_resources():
             sql = "select code from reference_concept"
             concept = pd.read_sql(sql, self.engine)
             # if not pd.isnull(concept).date[0]:
+            try:
+                self.engine.execute("TRUNCATE reference_concept_detail")
+            except Exception as e:
+                self.logger.info(full_name + str(e))
+
             for index, row in concept.iterrows():
                 time.sleep(2)
                 parameter = str({'id': strUtils.noneToUndecided(row.code), 'ts_code': strUtils.noneToUndecided(ts_code)})

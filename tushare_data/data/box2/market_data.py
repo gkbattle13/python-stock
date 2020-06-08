@@ -30,9 +30,9 @@ class makret_data():
         if not exchange is None:
             sql = sql + ' and exchange = "' + exchange + '"'
         if not start_date is None:
-            sql = sql + ' and cal_date > ' + start_date
+            sql = sql + ' and cal_date >= ' + start_date
         if not end_date is None:
-            sql = sql + ' and cal_date < ' + end_date
+            sql = sql + ' and cal_date <= ' + end_date
         data_1 = pd.read_sql(sql, self.engine)
         for index, row in data_1.iterrows():
             date_2 = row["cal_date"]
