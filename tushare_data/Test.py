@@ -7,7 +7,7 @@ import queue
 import sys
 import threading
 
-from tushare_data.data.box2 import market_reference_resources
+from tushare_data.data.box2 import market_reference_resources, financial_statements, macro_data
 
 current_path = inspect.getfile(inspect.currentframe())
 # 获取当前文件所在目录，相当于当前文件的父目录
@@ -193,10 +193,22 @@ def getAll():
 
     # a = market_entry.daily(ts_code= "000001.SZ", trade_date="20200323")
     # b = market_entry.daily_basic(ts_code = "000001.SZ", trade_date="20200323")
-    reference_entry = market_reference_resources.market_reference_resources(engine, pro, logger)
-    reference_entry.concept_detail()
-    print("wer")
+    # reference_entry = market_reference_resources.market_reference_resources(engine, pro, logger)
+    # reference_entry.concept_detail()
+    # print("wer")
 
+    # 测试财务报表  获取时间 0921
+    # financial_statements_entry = financial_statements.financial_statements(engine, pro, logger)
+    # financial_statements_entry.financial(ts_code= "000001.SZ")
+    # financial_statements_entry.financial2(ts_code= "000001.SZ")
+    # financial_statements_entry.daily_cycle()
+
+    # 民间借贷
+    macro_data_entry = macro_data.macro_data(engine, pro, logger)
+    # macro_data_entry.borrow(date="20200921")
+    # macro_data_entry.borrow(start_date='20000101',end_date='20200920')
+    macro_data_entry.all(start='19900101',end='20200921')
+    macro_data_entry.cn_gdp(start_q='1990Q1',end_q='2020Q3')
 
 getAll()
 # fund1()
