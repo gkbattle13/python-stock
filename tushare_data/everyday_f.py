@@ -3,6 +3,9 @@ import inspect
 import os
 import sys
 import time
+import pandas as pd
+import slowToRich.america.stock.america_stock as america_stock
+
 
 # 获取当前文件路径
 current_path = inspect.getfile(inspect.currentframe())
@@ -16,24 +19,30 @@ print("添加包路径为：" + list_path[0])
 sys.path.append(list_path[0])
 
 from tushare_data import configuration
-from tushare_data.data.box2 import basic
+from tushare_data.data.box2 import basic, financial_statements
 from tushare_data.data.box2 import market_data
 from tushare_data.data.box2 import fund
 from tushare_data.data.box2 import market_reference_resources
 
 
+
 # 基础数据
-def base_t(engine, pro, logger):
+def base_t(engine, pro, logger, date):
     basic_entry = basic.basic(engine, pro, logger)
+    # 每天更新的数据
     basic_entry.stock_basic(None, None, None)  # 股票列表
     basic_entry.hs_const("SH", None)  # 沪深股通成份股
     basic_entry.hs_const("SZ", None)  # 沪深股通成份股
     basic_entry.stock_company(None, None)  # 上市公司基本信息
 
+    # TODO 需要测试当天是否能获取到昨天的数据
+    date = "20200926"
+    basic_entry.stk_managers(ann_date=date)  # 上市公司管理层
+    basic_entry.stk_rewards(ts_code=date)  # 管理层薪酬和持股
+
 
 # 行情数据
-def makret_t(engine, pro, logger):
-    needDate = time.strftime("%Y%m%d", time.localtime())
+def market_t(engine, pro, logger, needDate):
     # needDate = "20200520"
     market_entry = market_data.makret_data(engine, pro, logger)
     market_entry.daily(trade_date=needDate)  # 日线
@@ -45,19 +54,9 @@ def makret_t(engine, pro, logger):
     market_entry.ggt_daily(trade_date=needDate)  # 港股通每日成交统计
     market_entry.index_global(trade_date=needDate)  # 国际指数
 
-    # market_entry.daily(trade_date="20200520") # 日线
-    # market_entry.daily_basic(trade_date="20200520")
-    # market_entry.money_flow(trade_date="20200520")
-    # market_entry.moneyflow_hsgt(trade_date="20200520")
-    # market_entry.hsgt_top10(trade_date="20200520")
-    # market_entry.hk_hold(trade_date="20200520")
-    # market_entry.ggt_daily(trade_date="20200520")
-    # market_entry.index_global(trade_date="20200520")
-
 
 # 市场产考信息
-def reference_t(engine, pro, logger):
-    needDate = time.strftime("%Y%m%d", time.localtime())
+def reference_t(engine, pro, logger, needDate):
     # needDate = "20200520"
     reference_entry = market_reference_resources.market_reference_resources(engine, pro, logger)
     reference_entry.stk_holdertrade(ann_date=needDate)  # 股东增减持
@@ -80,20 +79,33 @@ def reference_t(engine, pro, logger):
     # reference_entry.stk_account() # 股票账户开户数据统计周期为一周
 
 
+# 财务数据
+def financial_statements_t(engine, pro, logger, needDate):
+    f = financial_statements.financial_statements(engine, pro, logger)
+    f.financial(ann_date=needDate)
+
+
 # 基金数据
 def fund_t(engine, pro, logger):
     fund_entry = fund.fund(engine, pro, logger)
 
 
 def run():
+    # TODO 处理需要处理的数据
     time_start = time.time()
-    engine, pro, logger = configuration.sql_tuShare_log()
-    base_t(engine, pro, logger)
-    makret_t(engine, pro, logger)
-    # fund_t(engine, pro, logger)
-    reference_t(engine, pro, logger)
+
+    needDate = time.strftime("%Y%m%d", time.localtime())
+    engine, pro, logger = configuration.sql_tuShare_log('config.ini')
+    us_stock = america_stock.america_stock(engine, pro, logger)
+    # us_stock.get_us_stock_name();
+    # base_t(engine, pro, logger)
+    # market_t(engine, pro, logger, needDate)
+    # reference_t(engine, pro, logger, needDate)
+    # financial_statements_t(engine, pro, logger, needDate)
+
+    us_stock.get_us_stock_name_from_mysql()
     time_end = time.time()
-    logger.info("f-clock 运行完成共用时："+ str(time_end-time_start) + 's')
+    logger.info("f-clock 运行完成共用时：" + str(time_end - time_start) + 's')
 
 
 run()

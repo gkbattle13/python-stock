@@ -180,7 +180,7 @@ from tushare_data.utils import loggerUtils
 #     # fundEntity.div(pay_date='20181018')
 
 def getAll():
-    engine, pro, logger = configuration.sql_tuShare_log()
+    engine, pro, logger = configuration.sql_tuShare_log("config.ini")
         # 基础数据测试
     # basic_entry = basic.basic(engine, pro, logger)
     # basic_entry.stock_basic(None, None, None)  # 股票列表

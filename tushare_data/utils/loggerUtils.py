@@ -106,6 +106,8 @@ class TNLog(object):
                   result_count=None):
         a = (" 获取成功，数据量为" + result_count) if status == 1 else " 获取失败"
         description = full_name + a + "，参数为：" + parameter
+        if error_info:
+            description = description + " ERROR: " + error_info
         self.info(description)
         self.insertInfoDaily(engine=engine, full_name=full_name, fun_name=fun_name, parameter=parameter, status=status,
                              error_info=error_info, result_count=result_count, description=description)

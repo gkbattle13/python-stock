@@ -7,7 +7,7 @@ import tushare as ts
 from tushare_data.utils import strUtils
 
 
-# 获取股票基础数据
+# 获取股票基础数据 包含列表， 日历，基本信息，管理层，管理层持股和薪资，IPO新股上市
 class basic():
 
     # 初始化: 数据连接：(engine), tushare api：(pro), 日志：（logger）
@@ -28,11 +28,13 @@ class basic():
 
     def stock_basic(self, is_hs, list_status, exchange):
         full_name = "TuShare 基础数据 股票列表 stock_basic"
-        parameter = str({'is_hs': strUtils.noneToUndecided(is_hs), 'list_status': strUtils.noneToUndecided(is_hs), 'exchange': strUtils.noneToUndecided(is_hs)})
+        parameter = str({'is_hs': strUtils.noneToUndecided(is_hs), 'list_status': strUtils.noneToUndecided(is_hs),
+                         'exchange': strUtils.noneToUndecided(is_hs)})
         try:
             # 调用tushare获取数据
             data = self.pro.stock_basic(is_hs=is_hs, list_status=list_status, exchange=exchange,
-                                        fields='ts_code,symbol,name,fullname,enname,exchange,curr_type,list_status,list_date,delist_date,is_hs')
+                                        fields='ts_code,symbol,name,area,industry,fullname,enname,market,exchange,'
+                                               'curr_type,list_status,list_date,delist_date,is_hs')
             # 转换字段名称
             data.rename(
                 columns={'totalAssets': 'total_assets', 'fullname': 'full_name', 'liquidAssets': 'liquid_assets',
@@ -81,6 +83,10 @@ class basic():
         full_name = "TuShare 基础数据 沪深股通成份股 hs_const"
         parameter = str({'hs_type': strUtils.noneToUndecided(hs_type), 'is_new': strUtils.noneToUndecided(is_new)})
         try:
+            try:
+                self.engine.execute("TRUNCATE basic_hs_const")
+            except Exception as e:
+                self.logger.info(full_name + str(e))
             data = self.pro.hs_const(hs_type=hs_type, is_new=is_new)
             data.to_sql("basic_hs_const", self.engine, if_exists="append", index=False)
             self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="hs_const", parameter=parameter,
@@ -88,18 +94,21 @@ class basic():
         except Exception as e:
             self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="hs_const", parameter=parameter,
                                   status=0, error_info=str(e), result_count=None)
+
     """     
-      接口：stock_company   先删除在添加
-      描述：获取上市公司基础信息
-      ts_code	str	Y	股票代码
-      exchange	str	Y	交易所代码 ，SSE上交所 SZSE深交所
+        接口：stock_company   
+        描述：获取上市公司基础信息
+        ts_code	str	N	股票代码，支持单个或多个股票输入
+        ann_date	str	N	公告日期（YYYYMMDD格式，下同）
+        start_date	str	N	公告开始日期
+        end_date	str	N	公告结束日期
     """
 
-    def stock_company(self, ts_code=None, exchange=None):
+    def stock_company(self, ts_code=None, ann_date=None):
         full_name = "TuShare 基础数据 上市公司基础信息 stock_company"
-        parameter = str({'ts_code': strUtils.noneToUndecided(ts_code), 'exchange': strUtils.noneToUndecided(exchange)})
+        parameter = str({'ts_code': strUtils.noneToUndecided(ts_code), 'exchange': strUtils.noneToUndecided(ann_date)})
         try:
-            data = self.pro.stock_company(ts_code=ts_code, exchange=exchange,
+            data = self.pro.stock_company(ts_code=ts_code, ann_date=ann_date,
                                           fields='ts_code,exchange,chairman,manager,secretary,reg_capital,setup_date,province,city,website,email,employees,main_business,business_scope')
             # 清空basic_stock_company表，存放当天数据, 在没有数据返回的时候会报错，
             try:
@@ -107,28 +116,32 @@ class basic():
             except Exception as e:
                 self.logger.info(full_name + str(e))
             data.to_sql("basic_stock_company", self.engine, if_exists="append", index=False)
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stock_company", parameter=parameter,
-                                      status=1, error_info=None, result_count=str(len(data)))
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stock_company",
+                                  parameter=parameter,
+                                  status=1, error_info=None, result_count=str(len(data)))
         except Exception as e:
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stock_company", parameter=parameter,
-                                      status=0, error_info=str(e), result_count=None)
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stock_company",
+                                  parameter=parameter,
+                                  status=0, error_info=str(e), result_count=None)
+
     """
-        获取频次：建议每天获取，对比变化
         接口：stk_managers  
         描述：上市公司管理层
         ts_code	str	Y	股票代码，支持单个或多个股票输入
     """
 
-    def stk_managers(self, ts_code):
+    def stk_managers(self, ts_code=None, ann_date=None):
+        full_name = "TuShare 基础数据 上市公司管理层 stk_managers"
+        parameter = str({'ts_code': strUtils.noneToUndecided(ts_code), 'ann_date': strUtils.noneToUndecided(ann_date)})
         try:
-            # TODO 数据需要处理，对比出每天的变化
-            data = self.pro.stk_managers(ts_code=ts_code)
-            self.logger.info(
-                'TuShare 上市公司管理层 stk_managers: ' + strUtils.noneToUndecided(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
+            data = self.pro.stk_managers(ts_code=ts_code,ann_date=ann_date)
             data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
             data.to_sql("basic_stk_managers", self.engine, if_exists="append", index=False)
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stock_company",
+                                  parameter=parameter, status=1, error_info=None, result_count=str(len(data)))
         except Exception as e:
-            self.logger.error("TuShare 上市公司管理层：" + str(e))
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stk_managers",
+                                  parameter=parameter, status=0, error_info=str(e), result_count=None)
 
     """
         接口：stk_rewards  
@@ -138,14 +151,24 @@ class basic():
     """
 
     def stk_rewards(self, ts_code=None, end_date=None):
+        full_name = "TuShare 基础数据 管理层薪酬和持股 stk_rewards"
+        parameter = str({'ts_code': strUtils.noneToUndecided(ts_code)})
         try:
             data = self.pro.stk_rewards(ts_code=ts_code, end_date=end_date)
-            self.logger.info(
-                'TuShare 管理层薪酬和持股 stk_managers: ' + strUtils.noneToUndecided(ts_code) + ' 数据共：' + str(len(data)) + "条数据")
+            try:
+                self.engine.execute("TRUNCATE basic_stk_managers")
+            except Exception as e:
+                self.logger.info(full_name + str(e))
+
             data.insert(2, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
             data.to_sql("basic_stk_rewards", self.engine, if_exists="append", index=False)
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stk_rewards",
+                                  parameter=parameter, status=1, error_info=None, result_count=str(len(data)))
+
         except Exception as e:
-            self.logger.error("TuShare 管理层薪酬和持股：" + str(e))
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="stk_rewards",
+                                  parameter=parameter, status=0, error_info=str(e), result_count=None)
+
 
 
 

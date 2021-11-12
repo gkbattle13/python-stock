@@ -10,7 +10,7 @@ from tushare_data.utils.date import date_tool
 
 
 # 获取行情数据
-class makret_data():
+class market_data():
 
     # 初始化: 数据连接：(engine), tushare api：(pro), 日志：（logger）
     def __init__(self, engine, pro, logger):
@@ -78,7 +78,6 @@ class makret_data():
             date_2.decode('utf8')
             self.money_flow(trade_date=date_2)
 
-
     """
     根据输入的日期循环获取一段时间内沪深股通十大成交股 循环调用hsgt_top10接口,使用trade_date参数，可能有些股票现在不存在
     """
@@ -116,7 +115,6 @@ class makret_data():
             date_2 = row["cal_date"]
             date_2.decode('utf8')
             self.moneyflow_hsgt(trade_date=date_2)
-
 
     """
         根据输入的时间循环获取一段时间内的数据 循环调用weekly接口,使用trade_date参数，可能有些股票现在不存在
@@ -161,7 +159,36 @@ class makret_data():
             time.sleep(0.4)
 
     """
-    日线行情
+    接口：bak_daily 备用行情 
+    更新时间： 获取备用行情，包括特定的行情指标 交易日每天15点～16点之间
+    ts_code	    str	N	股票代码
+    trade_date	str	N	交易日期
+    start_date	str	N	开始日期
+    end_date	str	N	结束日期
+    offset	    str	N	开始行数
+    limit	    str	N	最大行数
+    """
+
+    def bak_daily(self, ts_code=None, trade_date=None, start_date=None, end_date=None, offset=None, limit=None):
+        full_name = "TuShare 行情数据 备用行情 bak_daily"
+        parameter = str(
+            {'ts_code:' + strUtils.noneToUndecided(ts_code) + ", trade_date:" + strUtils.noneToUndecided(trade_date) +
+             ",start_date:" + strUtils.noneToUndecided(start_date) + ",end_date:" + strUtils.noneToUndecided(end_date) +
+             ",offset:" + strUtils.noneToUndecided(offset) + ",limit:" + strUtils.noneToUndecided(limit)})
+        try:
+            data = self.pro.bak_daily(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date,
+                                      offset=offset, limit=limit)
+            data.to_sql("makret_bak_daily", self.engine, if_exists="append", index=False)
+
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="quotes_bak_daily",
+                                  parameter=parameter,
+                                  status=1, error_info=None, result_count=str(len(data)))
+        except Exception as e:
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="quotes_bak_daily",
+                                  parameter=parameter, status=0, error_info=str(e), result_count=None)
+
+    """
+    日线行情 & 每日指标
     接口：daily
     更新时间：交易日每天15点～16点之间
     描述：获取股票行情数据，或通过通用行情接口获取数据，包含了前后复权数据．
@@ -178,12 +205,19 @@ class makret_data():
             {'ts_code': strUtils.noneToUndecided(ts_code), 'trade_date': strUtils.noneToUndecided(trade_date),
              'start_date': strUtils.noneToUndecided(start_date), 'end_date': strUtils.noneToUndecided(end_date)})
         try:
+            # 日线行情
             data = self.pro.daily(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date)
-            data.to_sql("makret_data_daily", self.engine, if_exists="append", index=False)
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="daily", parameter=parameter,
+            data.to_sql("market_data_daily", self.engine, if_exists="append", index=False)
+
+            # 每日指标
+            data = self.pro.daily_basic(ts_code=ts_code, trade_date=trade_date, start_date=start_date,
+                                        end_date=end_date)
+            data.to_sql("market_daily_basic", self.engine, if_exists="append", index=False)
+
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="daily,basic", parameter=parameter,
                                   status=1, result_count=str(len(data)))
         except Exception as e:
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="daily", parameter=parameter,
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="daily,basic", parameter=parameter,
                                   status=0, error_info=str(e), result_count=None)
 
     """
@@ -206,7 +240,6 @@ class makret_data():
         data.insert(11, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
         data.to_sql("makret_data_weekly", self.engine, if_exists="append", index=False)
 
-
     """
         月线行情
         接口：monthly
@@ -226,46 +259,6 @@ class makret_data():
         data.insert(11, 'create_date', str(time.strftime("%Y-%m-%d", time.localtime())))
         data.to_sql("makret_data_monthly", self.engine, if_exists="append", index=False)
 
-    def quotes_daily(self, ts_code=None, trade_date=None, start_date=None, end_date=None):
-        try:
-            data = self.pro.daily(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date)
-            data.to_sql("quotes_daily", self.engine, if_exists="append", index=False)
-            self.logger.info("TuShare 获取行情数据成功：ts_code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
-                             strUtils.noneToUndecided(trade_date) + ",  开始日期： " + strUtils.noneToUndecided(start_date) +
-                             ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " ,  数据量： " + str(len(data)) + "成功")
-        except Exception as e:
-            self.logger.errorlog(fun_name='daily', ts_code=ts_code, trade_date=trade_date, start_date=start_date,
-                                 end_date=end_date, e=str(e))
-            self.logger.error("TuShare 获取行情数据失败：code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
-                              strUtils.noneToUndecided(trade_date) + "  开始日期： " + strUtils.noneToUndecided(start_date) +
-                              ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " , 失败，错误详情： " + str(e))
-
-    """
-    接口：每日指标 daily_basic
-    更新时间：交易日每日15点～17点之间
-    描述：获取全部股票每日重要的行情数据，可用于选股分析、报表展示等。
-    ts_code	str	Y	股票代码（二选一）
-    trade_date	str	N	交易日期 （二选一）
-    start_date	str	N	开始日期(YYYYMMDD)
-    end_date	str	N	结束日期(YYYYMMDD)
-    """
-
-    # 根据参数获取每日指标
-    def daily_basic(self, ts_code=None, trade_date=None, start_date=None, end_date=None):
-        full_name = "TuShare 行情数据 每日指标 daily_basic"
-        parameter = str(
-            {'ts_code': strUtils.noneToUndecided(ts_code), 'trade_date': strUtils.noneToUndecided(trade_date),
-             'start_date': strUtils.noneToUndecided(start_date), 'end_date': strUtils.noneToUndecided(end_date)})
-        try:
-            data = self.pro.daily_basic(ts_code=ts_code, trade_date=trade_date, start_date=start_date,
-                                        end_date=end_date)
-            data.to_sql("makret_daily_basic", self.engine, if_exists="append", index=False)
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="daily_basic", parameter=parameter,
-                                  status=1, result_count=str(len(data)))
-        except Exception as e:
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="daily_basic", parameter=parameter,
-                                  status=0, error_info=str(e), result_count=None)
-
     """
     接口：每日涨跌停统计 limit_list
     描述：获取每日涨跌停股票统计，包括封闭时间和打开次数等数据，帮助用户快速定位近期强（弱）势股，以及研究超短线策略。
@@ -284,7 +277,7 @@ class makret_data():
             data = self.pro.limit_list(ts_code=ts_code, limit_type=limit_type, trade_date=trade_date,
                                        start_date=start_date,
                                        end_date=end_date)
-            data.to_sql("makret_limit_list", self.engine, if_exists="append", index=False)
+            data.to_sql("market_limit_list", self.engine, if_exists="append", index=False)
             self.logger.info("TuShare 获取每日涨跌停统计成功：ts_code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
                              strUtils.noneToUndecided(trade_date) + ",  开始日期： " + strUtils.noneToUndecided(start_date) +
                              ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " ,  数据量： " + str(len(data)) + "成功")
@@ -294,62 +287,6 @@ class makret_data():
             self.logger.error("TuShare 获取行情数据失败：code：" + strUtils.noneToUndecided(ts_code) + ", 交易日期：" +
                               strUtils.noneToUndecided(trade_date) + "  开始日期： " + strUtils.noneToUndecided(start_date) +
                               ", 结束日期：  " + strUtils.noneToUndecided(end_date) + " , 失败，错误详情： " + str(e))
-
-
-
-    """
-    接口：沪深港通资金流向 moneyflow_hsgt
-    描述：获取沪股通、深股通、港股通每日资金流向数据，每次最多返回300条记录，总量不限制。
-    trade_date	str	N	交易日期 (二选一)
-    start_date	str	N	开始日期 (二选一)
-    end_date	str	N	结束日期
-    """
-
-    # 沪深港通资金流向
-    def moneyflow_hsgt(self, trade_date=None, start_date=None, end_date=None):
-        full_name = "TuShare 行情数据 沪深港通资金流向 moneyflow_hsgt"
-        parameter = str(
-            {'trade_date': strUtils.noneToUndecided(trade_date),
-             'start_date': strUtils.noneToUndecided(start_date), 'end_date': strUtils.noneToUndecided(end_date)})
-        try:
-            data = self.pro.moneyflow_hsgt(trade_date=trade_date, start_date=start_date, end_date=end_date)
-            data.to_sql("makret_moneyflow_hsgt", self.engine, if_exists="append", index=False)
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="moneyflow_hsgt",
-                                  parameter=parameter,
-                                  status=1, error_info=None, result_count=str(len(data)))
-        except Exception as e:
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="moneyflow_hsgt",
-                                  parameter=parameter,
-                                  status=0, error_info=str(e), result_count=None)
-
-    """
-    接口：沪深股通十大成交股 hsgt_top10
-    描述：获取沪股通、深股通每日前十大成交详细数据
-    ts_code	str	N	股票代码（二选一）
-    trade_date	str	N	交易日期（二选一）
-    start_date	str	N	开始日期
-    end_date	str	N	结束日期
-    market_type	str	N	市场类型（1：沪市 3：深市）
-    """
-
-    # 沪深港通资金流向
-    def hsgt_top10(self, ts_code=None, trade_date=None, start_date=None, end_date=None, market_type=None):
-        full_name = "TuShare 行情数据 沪深股通十大成交股 hsgt_top10"
-        parameter = str(
-            {'ts_code': strUtils.noneToUndecided(ts_code), 'trade_date': strUtils.noneToUndecided(trade_date),
-             'start_date': strUtils.noneToUndecided(start_date), 'end_date': strUtils.noneToUndecided(end_date),
-             'market_type': strUtils.noneToUndecided(market_type)})
-        try:
-            data = self.pro.hsgt_top10(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date,
-                                       market_type=market_type)
-            data.to_sql("makret_hsgt_top10", self.engine, if_exists="append", index=False)
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="hsgt_top10",
-                                  parameter=parameter,
-                                  status=1, error_info=None, result_count=str(len(data)))
-        except Exception as e:
-            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="hsgt_top10",
-                                  parameter=parameter,
-                                  status=0, error_info=str(e), result_count=None)
 
     """
         个股资金流向
@@ -368,7 +305,7 @@ class makret_data():
              'start_date': strUtils.noneToUndecided(start_date), 'end_date': strUtils.noneToUndecided(end_date)})
         try:
             data = self.pro.moneyflow(ts_code=None, trade_date=trade_date, start_date=start_date, end_date=end_date)
-            data.to_sql("makret_money_flow", self.engine, if_exists="append", index=False)
+            data.to_sql("market_money_flow", self.engine, if_exists="append", index=False)
             self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="money_flow", parameter=parameter,
                                   status=1, error_info=None, result_count=str(len(data)))
         except Exception as e:
@@ -395,7 +332,7 @@ class makret_data():
         try:
             data = self.pro.hk_hold(code=None, ts_code=None, trade_date=trade_date, start_date=start_date,
                                     end_date=end_date, exchange=None)
-            data.to_sql("makret_hk_hold", self.engine, if_exists="append", index=False)
+            data.to_sql("market_hk_hold", self.engine, if_exists="append", index=False)
             self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="hk_hold",
                                   parameter=parameter,
                                   status=1, error_info=None, result_count=str(len(data)))
@@ -404,6 +341,60 @@ class makret_data():
                                   parameter=parameter,
                                   status=0, error_info=str(e), result_count=None)
 
+    """
+    接口：沪深股通十大成交股 hsgt_top10
+    描述：获取沪股通、深股通每日前十大成交详细数据
+    ts_code	str	N	股票代码（二选一）
+    trade_date	str	N	交易日期（二选一）
+    start_date	str	N	开始日期
+    end_date	str	N	结束日期
+    market_type	str	N	市场类型（1：沪市 3：深市）
+    """
+
+    # 沪深港通资金流向
+    def hsgt_top10(self, ts_code=None, trade_date=None, start_date=None, end_date=None, market_type=None):
+        full_name = "TuShare 行情数据 沪深股通十大成交股 hsgt_top10"
+        parameter = str(
+            {'ts_code': strUtils.noneToUndecided(ts_code), 'trade_date': strUtils.noneToUndecided(trade_date),
+             'start_date': strUtils.noneToUndecided(start_date), 'end_date': strUtils.noneToUndecided(end_date),
+             'market_type': strUtils.noneToUndecided(market_type)})
+        try:
+            data = self.pro.hsgt_top10(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date,
+                                       market_type=market_type)
+            data.to_sql("market_hsgt_top10", self.engine, if_exists="append", index=False)
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="hsgt_top10",
+                                  parameter=parameter,
+                                  status=1, error_info=None, result_count=str(len(data)))
+        except Exception as e:
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="hsgt_top10",
+                                  parameter=parameter,
+                                  status=0, error_info=str(e), result_count=None)
+
+    """
+    接口：沪深港通资金流向 moneyflow_hsgt
+    描述：获取沪股通、深股通、港股通每日资金流向数据，每次最多返回300条记录，总量不限制。
+    trade_date	str	N	交易日期 (二选一)
+    start_date	str	N	开始日期 (二选一)
+    end_date	str	N	结束日期
+    """
+
+    # 沪深港通资金流向
+    def moneyflow_hsgt(self, trade_date=None, start_date=None, end_date=None):
+        full_name = "TuShare 行情数据 沪深港通资金流向 moneyflow_hsgt"
+        parameter = str({'trade_date': strUtils.noneToUndecided(trade_date),
+                         'start_date': strUtils.noneToUndecided(start_date),
+                         'end_date': strUtils.noneToUndecided(end_date)})
+        try:
+            data = self.pro.moneyflow_hsgt(trade_date=trade_date, start_date=start_date, end_date=end_date)
+            data.to_sql("makret_moneyflow_hsgt", self.engine, if_exists="append", index=False)
+
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="moneyflow_hsgt",
+                                  parameter=parameter,
+                                  status=1, error_info=None, result_count=str(len(data)))
+        except Exception as e:
+            self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="moneyflow_hsgt",
+                                  parameter=parameter,
+                                  status=0, error_info=str(e), result_count=None)
 
     """
     接口：港股通每日成交统计 ggt_daily
@@ -417,18 +408,18 @@ class makret_data():
     def ggt_daily(self, trade_date=None, start_date=None, end_date=None):
         full_name = "TuShare 行情数据 港股通每日成交统计 ggt_daily"
         parameter = str(
-            { 'trade_date': strUtils.noneToUndecided(trade_date),
+            {'trade_date': strUtils.noneToUndecided(trade_date),
              'start_date': strUtils.noneToUndecided(start_date), 'end_date': strUtils.noneToUndecided(end_date)})
         try:
             data = self.pro.ggt_daily(trade_date=trade_date, start_date=start_date, end_date=end_date)
-            data.to_sql("makret_ggt_daily", self.engine, if_exists="append", index=False)
+            data.to_sql("market_ggt_daily", self.engine, if_exists="append", index=False)
             self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="ggt_daily",
-                              parameter=parameter,
-                              status=1, error_info=None, result_count=str(len(data)))
+                                  parameter=parameter,
+                                  status=1, error_info=None, result_count=str(len(data)))
         except Exception as e:
             self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="ggt_daily",
-                              parameter=parameter,
-                              status=0, error_info=str(e), result_count=None)
+                                  parameter=parameter,
+                                  status=0, error_info=str(e), result_count=None)
 
     """
     接口：国际指数 index_global
@@ -442,24 +433,18 @@ class makret_data():
     def index_global(self, trade_date=None, start_date=None, end_date=None):
         full_name = "TuShare 行情数据 港股通每日成交统计 index_global"
         parameter = str(
-            { 'trade_date': strUtils.noneToUndecided(trade_date),
+            {'trade_date': strUtils.noneToUndecided(trade_date),
              'start_date': strUtils.noneToUndecided(start_date), 'end_date': strUtils.noneToUndecided(end_date)})
         try:
             data = self.pro.index_global(trade_date=trade_date, start_date=start_date, end_date=end_date)
             data.to_sql("makret_index_global", self.engine, if_exists="append", index=False)
             self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="index_global",
-                              parameter=parameter,
-                              status=1, error_info=None, result_count=str(len(data)))
+                                  parameter=parameter,
+                                  status=1, error_info=None, result_count=str(len(data)))
         except Exception as e:
             self.logger.infoMysql(engine=self.engine, full_name=full_name, fun_name="index_global",
-                              parameter=parameter,
-                              status=0, error_info=str(e), result_count=None)
-
-
-
-
-
-
+                                  parameter=parameter,
+                                  status=0, error_info=str(e), result_count=None)
 
     """
     更新时间：早上9点30分

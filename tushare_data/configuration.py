@@ -18,9 +18,9 @@ from sqlalchemy import create_engine
 
 
 # 获取SQL, ThShare, Log
-def sql_tuShare_log():
+def sql_tuShare_log(config_name):
     cp = configparser.ConfigParser()
-    cp.read(file_abs_path + "/config.ini")
+    cp.read(file_abs_path + "/" + config_name)
     print("读取配置文件路径：" + file_abs_path + "/config.ini")
     # 获取thshare api
     tushare_token = cp.get("tushare", "tushare_token")
