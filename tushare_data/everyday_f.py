@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # 获取基础数据
 import inspect
 import os
