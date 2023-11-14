@@ -8,13 +8,10 @@ import time
 import pandas as pd
 import slowToRich.america.stock.america_stock as america_stock
 
-
 # 获取当前文件路径
 current_path = inspect.getfile(inspect.currentframe())
-# 获取当前文件所在目录，相当于当前文件的父目录
-dir_name = os.path.dirname(current_path)
-# 转换为绝对路径
-file_abs_path = os.path.abspath(dir_name)
+
+file_abs_path = os.path.abspath(current_path)
 # 划分目录，比如a/b/c划分后变为a/b和c
 list_path = os.path.split(file_abs_path)
 print("添加包路径为：" + list_path[0])
@@ -27,7 +24,6 @@ from tushare_data.data.box2 import fund
 from tushare_data.data.box2 import market_reference_resources
 
 
-
 # 基础数据
 def base_t(engine, pro, logger, date):
     basic_entry = basic.basic(engine, pro, logger)
@@ -36,7 +32,9 @@ def base_t(engine, pro, logger, date):
     basic_entry.hs_const("SH", None)  # 沪深股通成份股
     basic_entry.hs_const("SZ", None)  # 沪深股通成份股
     basic_entry.stock_company(None, None)  # 上市公司基本信息
-
+    # 获取当前文件所在目录，相当于当前文件的父目录
+    dir_name = os.path.dirname(current_path)
+    # 转换为绝对路径
     # TODO 需要测试当天是否能获取到昨天的数据
     date = "20200926"
     basic_entry.stk_managers(ann_date=date)  # 上市公司管理层
@@ -97,15 +95,29 @@ def run():
     time_start = time.time()
 
     needDate = time.strftime("%Y%m%d", time.localtime())
-    engine, pro, logger = configuration.sql_tuShare_log('config.ini')
+    engine, pro, logger = configuration.sql_tuShare_log('config-local.ini')
     us_stock = america_stock.america_stock(engine, pro, logger)
-    # us_stock.get_us_stock_name();
+
+
     # base_t(engine, pro, logger)
     # market_t(engine, pro, logger, needDate)
     # reference_t(engine, pro, logger, needDate)
     # financial_statements_t(engine, pro, logger, needDate)
 
-    us_stock.get_us_stock_name_from_mysql()
+    # us_stock.article_epu_index()
+    # us_stock.weibo_index()
+    # us_stock.baidu()
+    # us_stock.google()
+
+    # 获取美股名单
+    # us_stock.get_us_stock_name()
+    # 获取美股知名数据
+    # us_stock.stock_us_famous_spot_em()
+
+    # us_stock.get_stock_us_daily()
+
+    # 多线程获取美股数据
+    us_stock.get_stock_us_daily_thread()
     time_end = time.time()
     logger.info("f-clock 运行完成共用时：" + str(time_end - time_start) + 's')
 

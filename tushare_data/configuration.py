@@ -35,8 +35,8 @@ def sql_tuShare_log(config_name):
     db_host = cp.get("db", "db_host")
     db_user = cp.get("db", "db_user")
     db_pass = cp.get("db", "db_pass")
-    engine = create_engine('mysql+pymysql://' + db_user + ':' + db_pass + '@' + db_host + '/stock?charset=UTF8MB4',
-                           encoding='utf-8', pool_size=30, max_overflow=30)
+    engine = create_engine('mysql+pymysql://' + db_user + ':' + db_pass + '@' + db_host + '/stock_us?charset=UTF8',
+                            pool_size=30, max_overflow=30)
     # python 2.7用法
     # engine = create_engine('mysql://root:rootroot@localhost:3306/stock?charset=utf8', pool_size=30, max_overflow=30)
     return engine, pro, logger
